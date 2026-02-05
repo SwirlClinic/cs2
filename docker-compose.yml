@@ -35,6 +35,33 @@ services:
       timeout: 5s
       retries: 5
 
+  wp-php:
+    build:
+      context: ./web
+      target: php
+    container_name: cs2-wp-php
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file: .env
+    volumes:
+      - wp-html:/var/www/html
+
+  wp-nginx:
+    build:
+      context: ./web
+      target: nginx
+    container_name: cs2-wp-nginx
+    restart: unless-stopped
+    depends_on:
+      - wp-php
+    ports:
+      - "${WP_WEB_PORT:-8080}:80"
+    volumes:
+      - wp-html:/var/www/html:ro
+
 volumes:
   cs2-data:
   mysql-data:
+  wp-html:
