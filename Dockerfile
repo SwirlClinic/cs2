@@ -29,7 +29,8 @@ RUN useradd -m -u ${PUID} -s /bin/bash steam
 RUN mkdir -p /opt/steamcmd \
     && curl -fsSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz \
        | tar -xz -C /opt/steamcmd \
-    && ln -s /opt/steamcmd/steamcmd.sh /usr/local/bin/steamcmd \
+    && printf '#!/bin/bash\nexec /opt/steamcmd/steamcmd.sh "$@"\n' > /usr/local/bin/steamcmd \
+    && chmod +x /usr/local/bin/steamcmd \
     && mkdir -p /home/steam/.steam/sdk64 \
     && chown -R steam:steam /home/steam /opt/steamcmd
 
