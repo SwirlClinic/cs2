@@ -12,7 +12,7 @@ services:
       - "27015:27015/udp"
       - "27020:27020/udp"
     volumes:
-      - cs2-data:/home/steam/cs2-dedicated
+      - ./data/cs2:/home/steam/cs2-dedicated
     deploy:
       resources:
         limits:
@@ -28,7 +28,7 @@ services:
       MYSQL_USER: ${WP_DB_USER:-weaponpaints}
       MYSQL_PASSWORD: ${WP_DB_PASS:-weaponpaints}
     volumes:
-      - mysql-data:/var/lib/mysql
+      - ./data/mysql:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -46,7 +46,7 @@ services:
         condition: service_healthy
     env_file: .env
     volumes:
-      - wp-html:/var/www/html
+      - ./data/web:/var/www/html
 
   wp-nginx:
     build:
@@ -59,9 +59,4 @@ services:
     ports:
       - "${WP_WEB_PORT:-8080}:80"
     volumes:
-      - wp-html:/var/www/html:ro
-
-volumes:
-  cs2-data:
-  mysql-data:
-  wp-html:
+      - ./data/web:/var/www/html:ro
