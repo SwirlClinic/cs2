@@ -7,11 +7,10 @@ RUN apt-get update \
     && docker-php-ext-install pdo_mysql \
     && rm -rf /var/lib/apt/lists/*
 
-# Clone the WeaponPaints website
+# Clone website to a staging dir (entrypoint copies to volume at runtime)
 RUN git clone --depth 1 https://github.com/Nereziel/cs2-WeaponPaints.git /tmp/wp \
-    && mv /tmp/wp/website /var/www/html \
-    && rm -rf /tmp/wp \
-    && chown -R www-data:www-data /var/www/html
+    && mv /tmp/wp/website /opt/wp-website \
+    && rm -rf /tmp/wp
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

@@ -1,10 +1,19 @@
 #!/bin/bash
 set -e
 
-CONFIG="/var/www/html/class/config.php"
+WEBROOT="/var/www/html"
+STAGING="/opt/wp-website"
 
+# Copy website files into the volume if it's empty (first run)
+if [ ! -f "$WEBROOT/index.php" ]; then
+    echo "[web] Populating webroot from build..."
+    cp -a "$STAGING/." "$WEBROOT/"
+    chown -R www-data:www-data "$WEBROOT"
+fi
+
+# Write config from environment variables
 echo "[web] Writing config.php..."
-cat > "$CONFIG" <<PHPCFG
+cat > "$WEBROOT/class/config.php" <<PHPCFG
 <?php
 define('SKIN_LANGUAGE', '${WP_SKIN_LANGUAGE:-skins_en}');
 
