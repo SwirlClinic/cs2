@@ -31,9 +31,10 @@ services:
       - ./data/mysql:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      start_period: 5m
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 3
 
   wp-php:
     build:
