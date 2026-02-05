@@ -1,0 +1,40 @@
+services:
+  cs2:
+    build: .
+    container_name: cs2-server
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file: .env
+    ports:
+      - "27015:27015/tcp"
+      - "27015:27015/udp"
+      - "27020:27020/udp"
+    volumes:
+      - cs2-data:/home/steam/cs2-dedicated
+    deploy:
+      resources:
+        limits:
+          memory: 8g
+
+  mysql:
+    image: mysql:8.0
+    container_name: cs2-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${WP_DB_PASS:-weaponpaints}
+      MYSQL_DATABASE: ${WP_DB_NAME:-weaponpaints}
+      MYSQL_USER: ${WP_DB_USER:-weaponpaints}
+      MYSQL_PASSWORD: ${WP_DB_PASS:-weaponpaints}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  cs2-data:
+  mysql-data:
