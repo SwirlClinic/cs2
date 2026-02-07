@@ -93,6 +93,9 @@ fi
 echo "Starting CS2: $ARGS"
 cd "$CS2_DIR"
 
+# Set library path required by CS2 (matches cs2.sh)
+export LD_LIBRARY_PATH="$CS2_DIR/game/bin/linuxsteamrt64:$LD_LIBRARY_PATH"
+
 # Trap shutdown signals for graceful stop
 trap 'kill -TERM $SERVER_PID 2>/dev/null; wait $SERVER_PID' SIGTERM SIGINT
 

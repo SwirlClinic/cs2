@@ -24,7 +24,7 @@ gh_download() {
     echo "[plugins]   Fetching latest release from $repo..."
     local url
     url=$(curl -fsSL "https://api.github.com/repos/${repo}/releases/latest" \
-        | jq -r ".assets[] | select(.name | test(\"${pattern}\")) | .browser_download_url" \
+        | jq -r --arg pat "${pattern}" '.assets[] | select(.name | test($pat)) | .browser_download_url' \
         | head -1)
     if [ -z "$url" ] || [ "$url" = "null" ]; then
         echo "[plugins]   ERROR: no asset matching '$pattern' in $repo" >&2
@@ -42,8 +42,19 @@ gh_download() {
     esac
 }
 
-# ---- 1. Metamod:Source ----
-gh_download "alliedmodders/metamod-source" "linux.*\\.tar\\.gz" "$CSGO_DIR"
+# ---- 1. Metamod:Source (distributed via sourcemm.net, not GitHub Releases) ----
+echo "[plugins]   Fetching latest Metamod:Source build..."
+MM_URL=$(curl -fsSL "https://www.sourcemm.net/downloads.php?branch=master&all=1" \
+    | grep -oP 'https://mms\.alliedmods\.net/mmsdrop/2\.0/mmsource-[^"]+linux\.tar\.gz' \
+    | head -1)
+if [ -z "$MM_URL" ]; then
+    echo "[plugins]   ERROR: could not find Metamod:Source download URL" >&2
+    exit 1
+fi
+echo "[plugins]   Downloading $(basename "$MM_URL")..."
+curl -fsSL -o "$TMP_DIR/metamod.tar.gz" "$MM_URL"
+mkdir -p "$CSGO_DIR"
+tar -xzf "$TMP_DIR/metamod.tar.gz" -C "$CSGO_DIR"
 
 # Patch gameinfo.gi to load Metamod
 GAMEINFO="$CSGO_DIR/gameinfo.gi"
@@ -73,13 +84,13 @@ gh_download "NickFox007/PlayerSettingsCS2" "\\.zip" "$CSGO_DIR"
 gh_download "NickFox007/MenuManagerCS2" "\\.zip" "$CSGO_DIR"
 
 # ---- 6. WeaponPaints ----
-gh_download "Nereziel/cs2-WeaponPaints" "\\.zip" \
-    "$CSGO_DIR/addons/counterstrikesharp/plugins/WeaponPaints"
+# The zip contains a WeaponPaints/ folder, so extract to plugins/ (not plugins/WeaponPaints/)
+gh_download "Nereziel/cs2-WeaponPaints" "^WeaponPaints\\.zip$" \
+    "$CSGO_DIR/addons/counterstrikesharp/plugins"
 
-# Move gamedata file if present
-WP_GAMEDATA=$(find "$CSGO_DIR/addons/counterstrikesharp/plugins/WeaponPaints" \
-    -name "weaponpaints.json" -path "*/gamedata/*" 2>/dev/null | head -1)
-if [ -n "$WP_GAMEDATA" ]; then
+# Copy gamedata to the CSS global gamedata directory
+WP_GAMEDATA="$CSGO_DIR/addons/counterstrikesharp/plugins/WeaponPaints/gamedata/weaponpaints.json"
+if [ -f "$WP_GAMEDATA" ]; then
     mkdir -p "$CSGO_DIR/addons/counterstrikesharp/gamedata"
     cp "$WP_GAMEDATA" "$CSGO_DIR/addons/counterstrikesharp/gamedata/weaponpaints.json"
     echo "[plugins]   Copied weaponpaints.json gamedata"
