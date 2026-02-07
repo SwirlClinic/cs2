@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Downloads and installs Metamod, CounterStrikeSharp, and WeaponPaints
-# with all dependencies. Runs once; skips if already installed.
+# Downloads and installs Metamod, CounterStrikeSharp, and all plugins.
+# Runs once; skips if already installed.
 #
 set -e
 
@@ -14,7 +14,7 @@ if [ -f "$MARKER" ]; then
     return 0 2>/dev/null || exit 0
 fi
 
-echo "[plugins] Installing Metamod + CounterStrikeSharp + WeaponPaints..."
+echo "[plugins] Installing Metamod + CounterStrikeSharp + plugins..."
 mkdir -p "$TMP_DIR"
 
 # --- helper: download latest release asset from GitHub ---
@@ -83,7 +83,22 @@ gh_download "NickFox007/PlayerSettingsCS2" "\\.zip" "$CSGO_DIR"
 # ---- 5. MenuManagerCS2 ----
 gh_download "NickFox007/MenuManagerCS2" "\\.zip" "$CSGO_DIR"
 
-# ---- 6. WeaponPaints ----
+# ---- 6. MultiAddonManager ----
+gh_download "Source2ZE/MultiAddonManager" "linux\\.tar\\.gz" "$CSGO_DIR"
+
+# ---- 7. PlayerModelChanger ----
+gh_download "samyycX/CS2-PlayerModelChanger" "^PlayerModelChanger\\.zip$" \
+    "$CSGO_DIR/addons/counterstrikesharp/plugins"
+
+# ---- 8. CS2Rcon ----
+gh_download "LordFetznschaedl/CS2Rcon" "CS2Rcon.*\\.zip" \
+    "$CSGO_DIR/addons/counterstrikesharp/plugins"
+
+# ---- 9. Map ----
+gh_download "oscar-wos/Map" "^Map\\.zip$" \
+    "$CSGO_DIR/addons/counterstrikesharp/plugins"
+
+# ---- 10. WeaponPaints ----
 # The zip contains a WeaponPaints/ folder, so extract to plugins/ (not plugins/WeaponPaints/)
 gh_download "Nereziel/cs2-WeaponPaints" "^WeaponPaints\\.zip$" \
     "$CSGO_DIR/addons/counterstrikesharp/plugins"
@@ -96,7 +111,7 @@ if [ -f "$WP_GAMEDATA" ]; then
     echo "[plugins]   Copied weaponpaints.json gamedata"
 fi
 
-# ---- 7. Configure WeaponPaints database ----
+# ---- 11. Configure WeaponPaints database ----
 WP_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/WeaponPaints"
 mkdir -p "$WP_CFG_DIR"
 cat > "$WP_CFG_DIR/WeaponPaints.json" <<WPCFG
