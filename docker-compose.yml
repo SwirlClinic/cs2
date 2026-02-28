@@ -1,6 +1,6 @@
 services:
   cs2:
-    build: .
+    image: ghcr.io/swirlclinic/cs2:latest
     container_name: cs2-server
     restart: unless-stopped
     depends_on:
@@ -37,9 +37,7 @@ services:
       retries: 3
 
   wp-php:
-    build:
-      context: ./web
-      target: php
+    image: ghcr.io/swirlclinic/cs2/wp-php:latest
     container_name: cs2-wp-php
     restart: unless-stopped
     depends_on:
@@ -50,9 +48,7 @@ services:
       - ./data/web:/var/www/html
 
   wp-nginx:
-    build:
-      context: ./web
-      target: nginx
+    image: ghcr.io/swirlclinic/cs2/wp-nginx:latest
     container_name: cs2-wp-nginx
     restart: unless-stopped
     depends_on:
