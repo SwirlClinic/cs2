@@ -68,7 +68,9 @@ ENV SRCDS_TOKEN="" \
     TV_PORT=27020 \
     TV_AUTORECORD=0 \
     TV_PW="" \
-    STEAMAPPVALIDATE=0
+    STEAMAPPVALIDATE=0 \
+    FORCE_PLUGIN_REINSTALL=0 \
+    GITHUB_TOKEN=""
 
 # WeaponPaints / MySQL settings
 ENV WP_DB_HOST=mysql \

@@ -9,8 +9,14 @@ CSGO_DIR="$CS2_DIR/game/csgo"
 MARKER="$CSGO_DIR/.plugins-installed"
 TMP_DIR="/tmp/plugin-install"
 
+# Allow forcing a reinstall via env var
+if [ "$FORCE_PLUGIN_REINSTALL" = "1" ] && [ -f "$MARKER" ]; then
+    echo "[plugins] FORCE_PLUGIN_REINSTALL=1 — removing marker to reinstall"
+    rm -f "$MARKER"
+fi
+
 if [ -f "$MARKER" ]; then
-    echo "[plugins] Already installed — skipping (delete $MARKER to reinstall)"
+    echo "[plugins] Already installed — skipping (set FORCE_PLUGIN_REINSTALL=1 or delete $MARKER to reinstall)"
     return 0 2>/dev/null || exit 0
 fi
 
@@ -22,8 +28,12 @@ mkdir -p "$TMP_DIR"
 gh_download() {
     local repo="$1" pattern="$2" dest="$3"
     echo "[plugins]   Fetching latest release from $repo..."
+    local auth_header=()
+    if [ -n "$GITHUB_TOKEN" ]; then
+        auth_header=(-H "Authorization: Bearer $GITHUB_TOKEN")
+    fi
     local url
-    url=$(curl -fsSL "https://api.github.com/repos/${repo}/releases/latest" \
+    url=$(curl -fsSL "${auth_header[@]}" "https://api.github.com/repos/${repo}/releases/latest" \
         | jq -r --arg pat "${pattern}" '.assets[] | select(.name | test($pat)) | .browser_download_url' \
         | head -1)
     if [ -z "$url" ] || [ "$url" = "null" ]; then
@@ -110,22 +120,6 @@ if [ -f "$WP_GAMEDATA" ]; then
     cp "$WP_GAMEDATA" "$CSGO_DIR/addons/counterstrikesharp/gamedata/weaponpaints.json"
     echo "[plugins]   Copied weaponpaints.json gamedata"
 fi
-
-# ---- 11. Configure WeaponPaints database ----
-WP_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/WeaponPaints"
-mkdir -p "$WP_CFG_DIR"
-cat > "$WP_CFG_DIR/WeaponPaints.json" <<WPCFG
-{
-  "DatabaseHost": "${WP_DB_HOST}",
-  "DatabasePort": ${WP_DB_PORT},
-  "DatabaseUser": "${WP_DB_USER}",
-  "DatabasePassword": "${WP_DB_PASS}",
-  "DatabaseName": "${WP_DB_NAME}",
-  "CmdRefreshCooldownSeconds": 60,
-  "ChatPrefix": " [{green}WeaponPaints{default}]"
-}
-WPCFG
-echo "[plugins]   Wrote WeaponPaints database config"
 
 # ---- Cleanup ----
 rm -rf "$TMP_DIR"
