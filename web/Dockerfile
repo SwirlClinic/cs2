@@ -1,24 +1,41 @@
-FROM php:8.2-fpm-bookworm AS php
+FROM node:20-alpine AS base
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        git \
-        unzip \
-    && docker-php-ext-install pdo_mysql \
-    && rm -rf /var/lib/apt/lists/*
+# Install dependencies
+FROM base AS deps
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci || npm install
 
-# Clone website to a staging dir (entrypoint copies to volume at runtime)
-RUN git clone --depth 1 https://github.com/Nereziel/cs2-WeaponPaints.git /tmp/wp \
-    && mv /tmp/wp/website /opt/wp-website \
-    && rm -rf /tmp/wp
+# Build
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
 
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Production
+FROM base AS runner
+WORKDIR /app
 
-ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["php-fpm"]
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# -----------------------------------------------------------
-FROM nginx:stable-bookworm AS nginx
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/public ./public
+
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]

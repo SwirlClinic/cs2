@@ -36,24 +36,15 @@ services:
       timeout: 5s
       retries: 3
 
-  wp-php:
-    image: ghcr.io/swirlclinic/cs2/wp-php:latest
-    container_name: cs2-wp-php
+  web:
+    image: ghcr.io/swirlclinic/cs2/web:latest
+    container_name: cs2-web
     restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy
     env_file: .env
-    volumes:
-      - ./data/web:/var/www/html
-
-  wp-nginx:
-    image: ghcr.io/swirlclinic/cs2/wp-nginx:latest
-    container_name: cs2-wp-nginx
-    restart: unless-stopped
-    depends_on:
-      - wp-php
     ports:
-      - "${WP_WEB_PORT:-8080}:80"
+      - "${WP_WEB_PORT:-8080}:3000"
     volumes:
-      - ./data/web:/var/www/html:ro
+      - ./data/cs2/game/csgo/addons/counterstrikesharp/plugins/WeaponPaints/data:/app/wp-data:ro
