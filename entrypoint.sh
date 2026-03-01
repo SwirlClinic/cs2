@@ -64,8 +64,9 @@ WRCFG
     echo "WeaponRestrict config written (AWP + Deagle only)"
 fi
 
-# ----- Write server.cfg (every startup) -----
-cat > "$CSGO_DIR/cfg/server.cfg" <<'SVRCFG'
+# ----- Write server.cfg (only if it doesn't exist) -----
+if [ ! -f "$CSGO_DIR/cfg/server.cfg" ]; then
+    cat > "$CSGO_DIR/cfg/server.cfg" <<'SVRCFG'
 // 24/7 AWP Lego - Server Configuration
 mp_roundtime 5
 mp_roundtime_defuse 0
@@ -77,10 +78,14 @@ mp_autoteambalance 1
 mp_limitteams 1
 mp_endmatch_votenextmap 0
 mp_match_end_changelevel 0
+mp_maxrounds 59
 sv_alltalk 1
 sv_deadtalk 1
 SVRCFG
-echo "server.cfg written"
+    echo "server.cfg written (first run)"
+else
+    echo "server.cfg exists — skipping (edit directly or delete to regenerate)"
+fi
 
 # ----- Run pre.sh hook if present -----
 if [ -x "$CS2_DIR/pre.sh" ]; then
