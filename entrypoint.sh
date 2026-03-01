@@ -28,23 +28,27 @@ fi
 # ----- Install plugins (Metamod, CounterStrikeSharp, WeaponPaints) -----
 /home/steam/install-plugins.sh
 
-# ----- Write WeaponPaints config (every startup, so .env changes propagate) -----
+# ----- Write WeaponPaints config (only if it doesn't exist) -----
 CSGO_DIR="$CS2_DIR/game/csgo"
 WP_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/WeaponPaints"
 if [ -d "$CSGO_DIR/addons/counterstrikesharp" ]; then
     mkdir -p "$WP_CFG_DIR"
-    cat > "$WP_CFG_DIR/WeaponPaints.json" <<WPCFG
+    if [ ! -f "$WP_CFG_DIR/WeaponPaints.json" ]; then
+        cat > "$WP_CFG_DIR/WeaponPaints.json" <<WPCFG
 {
   "DatabaseHost": "${WP_DB_HOST}",
   "DatabasePort": ${WP_DB_PORT},
   "DatabaseUser": "${WP_DB_USER}",
   "DatabasePassword": "${WP_DB_PASS}",
   "DatabaseName": "${WP_DB_NAME}",
-  "CmdRefreshCooldownSeconds": 60,
+  "CmdRefreshCooldownSeconds": 5,
   "ChatPrefix": " [{green}WeaponPaints{default}]"
 }
 WPCFG
-    echo "WeaponPaints config written (from env)"
+        echo "WeaponPaints config written (first run)"
+    else
+        echo "WeaponPaints config exists — skipping"
+    fi
 
     # ----- Write WeaponRestrict config (only if it doesn't exist) -----
     WR_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/WeaponRestrict"
