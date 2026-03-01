@@ -45,7 +45,42 @@ if [ -d "$CSGO_DIR/addons/counterstrikesharp" ]; then
 }
 WPCFG
     echo "WeaponPaints config written (from env)"
+
+    # ----- Write WeaponRestrict config -----
+    WR_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/WeaponRestrict"
+    mkdir -p "$WR_CFG_DIR"
+    cat > "$WR_CFG_DIR/WeaponRestrict.json" <<'WRCFG'
+{
+  "DefaultConfig": {
+    "WeaponQuotas": {},
+    "WeaponLimits": {
+      "weapon_awp": 24,
+      "weapon_deagle": 24
+    }
+  },
+  "MapConfigs": {}
+}
+WRCFG
+    echo "WeaponRestrict config written (AWP + Deagle only)"
 fi
+
+# ----- Write server.cfg (every startup) -----
+cat > "$CSGO_DIR/cfg/server.cfg" <<'SVRCFG'
+// 24/7 AWP Lego - Server Configuration
+mp_roundtime 5
+mp_roundtime_defuse 0
+mp_freezetime 3
+mp_buytime 10
+mp_buy_anywhere 1
+mp_warmuptime 15
+mp_autoteambalance 1
+mp_limitteams 1
+mp_endmatch_votenextmap 0
+mp_match_end_changelevel 0
+sv_alltalk 1
+sv_deadtalk 1
+SVRCFG
+echo "server.cfg written"
 
 # ----- Run pre.sh hook if present -----
 if [ -x "$CS2_DIR/pre.sh" ]; then

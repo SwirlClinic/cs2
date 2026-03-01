@@ -108,7 +108,25 @@ gh_download "LordFetznschaedl/CS2Rcon" "CS2Rcon.*\\.zip" \
 gh_download "oscar-wos/Map" "^Map\\.zip$" \
     "$CSGO_DIR/addons/counterstrikesharp/plugins"
 
-# ---- 10. WeaponPaints ----
+# ---- 10. WeaponRestrict ----
+echo "[plugins]   Fetching latest WeaponRestrict release..."
+WR_DIR="$CSGO_DIR/addons/counterstrikesharp/plugins/WeaponRestrict"
+mkdir -p "$WR_DIR"
+WR_AUTH=()
+if [ -n "$GITHUB_TOKEN" ]; then
+    WR_AUTH=(-H "Authorization: Bearer $GITHUB_TOKEN")
+fi
+WR_URL=$(curl -fsSL "${WR_AUTH[@]}" "https://api.github.com/repos/CS2Plugins/WeaponRestrict/releases/latest" \
+    | jq -r '.assets[] | select(.name | test("WeaponRestrict\\.dll")) | .browser_download_url' \
+    | head -1)
+if [ -n "$WR_URL" ] && [ "$WR_URL" != "null" ]; then
+    echo "[plugins]   Downloading WeaponRestrict.dll..."
+    curl -fsSL -o "$WR_DIR/WeaponRestrict.dll" "$WR_URL"
+else
+    echo "[plugins]   WARNING: could not find WeaponRestrict release" >&2
+fi
+
+# ---- 11. WeaponPaints ----
 # The zip contains a WeaponPaints/ folder, so extract to plugins/ (not plugins/WeaponPaints/)
 gh_download "Nereziel/cs2-WeaponPaints" "^WeaponPaints\\.zip$" \
     "$CSGO_DIR/addons/counterstrikesharp/plugins"
