@@ -46,10 +46,11 @@ if [ -d "$CSGO_DIR/addons/counterstrikesharp" ]; then
 WPCFG
     echo "WeaponPaints config written (from env)"
 
-    # ----- Write WeaponRestrict config -----
+    # ----- Write WeaponRestrict config (only if it doesn't exist) -----
     WR_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/WeaponRestrict"
     mkdir -p "$WR_CFG_DIR"
-    cat > "$WR_CFG_DIR/WeaponRestrict.json" <<'WRCFG'
+    if [ ! -f "$WR_CFG_DIR/WeaponRestrict.json" ]; then
+        cat > "$WR_CFG_DIR/WeaponRestrict.json" <<'WRCFG'
 {
   "DefaultConfig": {
     "WeaponQuotas": {},
@@ -61,7 +62,10 @@ WPCFG
   "MapConfigs": {}
 }
 WRCFG
-    echo "WeaponRestrict config written (AWP + Deagle only)"
+        echo "WeaponRestrict config written (first run)"
+    else
+        echo "WeaponRestrict config exists — skipping"
+    fi
 fi
 
 # ----- Write server.cfg (only if it doesn't exist) -----
