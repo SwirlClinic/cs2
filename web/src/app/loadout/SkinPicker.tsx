@@ -4,26 +4,41 @@ import { useState, useEffect, useMemo } from "react";
 import SearchBar from "@/components/SearchBar";
 import SkinCard from "@/components/SkinCard";
 import WearSeedControls from "./WearSeedControls";
-import type { SkinItem } from "@/lib/types";
+import StickerPicker from "./StickerPicker";
+import type { SkinItem, StickerItem } from "@/lib/types";
 
 interface SkinPickerProps {
   weaponDefindex: number;
   weaponName: string;
   currentPaintId?: number;
+  currentStickers?: string[];
   team: number;
   onSave: (data: {
     weapon_defindex: number;
     weapon_paint_id: number;
     weapon_wear: number;
     weapon_seed: number;
+    weapon_sticker_0: string;
+    weapon_sticker_1: string;
+    weapon_sticker_2: string;
+    weapon_sticker_3: string;
+    weapon_sticker_4: string;
   }) => void;
   onClose: () => void;
+}
+
+// Parse sticker ID from DB format "id;schema;x;y;wear;scale;rotation"
+function parseStickerIdFromDb(dbValue: string): string | null {
+  if (!dbValue) return null;
+  const id = dbValue.split(";")[0];
+  return id || null;
 }
 
 export default function SkinPicker({
   weaponDefindex,
   weaponName,
   currentPaintId,
+  currentStickers,
   team,
   onSave,
   onClose,
@@ -36,6 +51,14 @@ export default function SkinPicker({
   const [wear, setWear] = useState(0.0001);
   const [seed, setSeed] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  // Sticker state
+  const [stickers, setStickers] = useState<(string | null)[]>(() => {
+    if (!currentStickers) return [null, null, null, null, null];
+    return currentStickers.map(parseStickerIdFromDb);
+  });
+  const [stickerSlotOpen, setStickerSlotOpen] = useState<number | null>(null);
+  const [stickerCatalog, setStickerCatalog] = useState<Map<string, StickerItem>>(new Map());
 
   useEffect(() => {
     // Load skins for this weapon from the category endpoint
@@ -52,6 +75,18 @@ export default function SkinPicker({
       })
       .catch(() => setLoading(false));
   }, [weaponDefindex]);
+
+  // Fetch sticker catalog for thumbnail display
+  useEffect(() => {
+    fetch("/api/items/stickers")
+      .then((r) => r.json())
+      .then((data: StickerItem[]) => {
+        const map = new Map<string, StickerItem>();
+        for (const s of data) map.set(s.id, s);
+        setStickerCatalog(map);
+      })
+      .catch(() => {});
+  }, []);
 
   const filtered = useMemo(() => {
     if (!search) return skins;
@@ -127,6 +162,47 @@ export default function SkinPicker({
               onWearChange={setWear}
               onSeedChange={setSeed}
             />
+
+            {/* Sticker slots */}
+            <div>
+              <p className="text-xs text-text-dim mb-2">Stickers</p>
+              <div className="flex gap-2">
+                {stickers.map((stickerId, i) => {
+                  const stickerInfo = stickerId ? stickerCatalog.get(stickerId) : null;
+                  return (
+                    <div key={i} className="relative group">
+                      <button
+                        onClick={() => setStickerSlotOpen(i)}
+                        className="w-12 h-12 rounded border border-border bg-surface hover:border-accent flex items-center justify-center transition-colors"
+                        title={stickerInfo ? stickerInfo.name : `Sticker slot ${i + 1}`}
+                      >
+                        {stickerInfo ? (
+                          <img src={stickerInfo.image} alt={stickerInfo.name} className="w-10 h-10 object-contain" />
+                        ) : (
+                          <span className="text-text-dim text-xs">{i + 1}</span>
+                        )}
+                      </button>
+                      {stickerId && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setStickers((prev) => {
+                              const next = [...prev];
+                              next[i] = null;
+                              return next;
+                            });
+                          }}
+                          className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          &times;
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <button
               onClick={() =>
                 onSave({
@@ -134,6 +210,11 @@ export default function SkinPicker({
                   weapon_paint_id: selectedPaint,
                   weapon_wear: wear,
                   weapon_seed: seed,
+                  weapon_sticker_0: stickers[0] ? `${stickers[0]};0;0;0;0;0;0` : "",
+                  weapon_sticker_1: stickers[1] ? `${stickers[1]};0;0;0;0;0;0` : "",
+                  weapon_sticker_2: stickers[2] ? `${stickers[2]};0;0;0;0;0;0` : "",
+                  weapon_sticker_3: stickers[3] ? `${stickers[3]};0;0;0;0;0;0` : "",
+                  weapon_sticker_4: stickers[4] ? `${stickers[4]};0;0;0;0;0;0` : "",
                 })
               }
               className="w-full bg-accent hover:bg-accent-hover text-white py-2 rounded-lg text-sm font-medium transition-colors"
@@ -141,6 +222,21 @@ export default function SkinPicker({
               Save
             </button>
           </div>
+        )}
+
+        {/* Sticker picker overlay */}
+        {stickerSlotOpen !== null && (
+          <StickerPicker
+            onSelect={(stickerId) => {
+              setStickers((prev) => {
+                const next = [...prev];
+                next[stickerSlotOpen] = stickerId;
+                return next;
+              });
+              setStickerSlotOpen(null);
+            }}
+            onClose={() => setStickerSlotOpen(null)}
+          />
         )}
       </div>
     </div>

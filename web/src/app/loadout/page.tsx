@@ -73,6 +73,11 @@ export default function LoadoutPage() {
     weapon_paint_id: number;
     weapon_wear: number;
     weapon_seed: number;
+    weapon_sticker_0: string;
+    weapon_sticker_1: string;
+    weapon_sticker_2: string;
+    weapon_sticker_3: string;
+    weapon_sticker_4: string;
   }) => {
     setSaving(true);
     try {
@@ -302,25 +307,31 @@ export default function LoadoutPage() {
       )}
 
       {/* Skin picker slide-out */}
-      {selectedWeapon !== null && (
-        <SkinPicker
-          weaponDefindex={selectedWeapon}
-          weaponName={
-            WEAPON_NAMES[DEFINDEX_TO_WEAPON[selectedWeapon]] ||
-            `Weapon ${selectedWeapon}`
-          }
-          currentPaintId={
-            loadout?.skins.find(
-              (s) =>
-                s.weapon_defindex === selectedWeapon &&
-                s.weapon_team === team
-            )?.weapon_paint_id
-          }
-          team={team}
-          onSave={handleSaveSkin}
-          onClose={() => setSelectedWeapon(null)}
-        />
-      )}
+      {selectedWeapon !== null && (() => {
+        const currentSkin = loadout?.skins.find(
+          (s) => s.weapon_defindex === selectedWeapon && s.weapon_team === team
+        );
+        return (
+          <SkinPicker
+            weaponDefindex={selectedWeapon}
+            weaponName={
+              WEAPON_NAMES[DEFINDEX_TO_WEAPON[selectedWeapon]] ||
+              `Weapon ${selectedWeapon}`
+            }
+            currentPaintId={currentSkin?.weapon_paint_id}
+            currentStickers={currentSkin ? [
+              currentSkin.weapon_sticker_0,
+              currentSkin.weapon_sticker_1,
+              currentSkin.weapon_sticker_2,
+              currentSkin.weapon_sticker_3,
+              currentSkin.weapon_sticker_4,
+            ] : undefined}
+            team={team}
+            onSave={handleSaveSkin}
+            onClose={() => setSelectedWeapon(null)}
+          />
+        );
+      })()}
 
       {/* Toast */}
       {toast && (
