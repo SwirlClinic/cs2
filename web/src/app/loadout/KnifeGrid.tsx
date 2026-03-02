@@ -7,13 +7,15 @@ import type { SkinItem, PlayerSkin } from "@/lib/types";
 
 interface KnifeGridProps {
   currentKnife?: string;
-  currentKnifeSkin?: PlayerSkin;
-  onSelectKnife: (weaponName: string, displayName: string) => void;
+  skins: PlayerSkin[];
+  team: number;
+  onSelectKnife: (weaponName: string, displayName: string, defindex: number) => void;
 }
 
 export default function KnifeGrid({
   currentKnife,
-  currentKnifeSkin,
+  skins,
+  team,
   onSelectKnife,
 }: KnifeGridProps) {
   const [items, setItems] = useState<SkinItem[]>([]);
@@ -62,25 +64,30 @@ export default function KnifeGrid({
         {filtered.map((knife) => {
           const isEquipped = currentKnife === knife.weapon_name;
 
-          // Find equipped skin image and name for this knife type
+          // Find equipped skin image and name for THIS knife type's defindex
           let image = knife.image;
           let skinName = "Default";
-          if (isEquipped && currentKnifeSkin) {
-            const equippedEntry = items.find(
-              (s) =>
-                s.weapon_defindex === currentKnifeSkin.weapon_defindex &&
-                Number(s.paint) === currentKnifeSkin.weapon_paint_id
+          if (isEquipped) {
+            const knifeSkin = skins.find(
+              (s) => s.weapon_defindex === knife.weapon_defindex && s.weapon_team === team
             );
-            if (equippedEntry) {
-              image = equippedEntry.image;
-              skinName = equippedEntry.paint_name;
+            if (knifeSkin) {
+              const equippedEntry = items.find(
+                (s) =>
+                  s.weapon_defindex === knife.weapon_defindex &&
+                  Number(s.paint) === knifeSkin.weapon_paint_id
+              );
+              if (equippedEntry) {
+                image = equippedEntry.image;
+                skinName = equippedEntry.paint_name;
+              }
             }
           }
 
           return (
             <button
               key={knife.weapon_name}
-              onClick={() => onSelectKnife(knife.weapon_name, knife.paint_name)}
+              onClick={() => onSelectKnife(knife.weapon_name, knife.paint_name, knife.weapon_defindex)}
               className={`bg-surface border rounded-lg p-3 hover:bg-surface-hover hover:border-accent/50 transition-all cursor-pointer group ${
                 isEquipped ? "border-accent ring-1 ring-accent/30" : "border-border"
               }`}

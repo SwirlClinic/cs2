@@ -24,6 +24,7 @@ export default function LoadoutPage() {
   const [selectedKnifeType, setSelectedKnifeType] = useState<{
     weaponName: string;
     displayName: string;
+    defindex: number;
   } | null>(null);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
@@ -198,10 +199,6 @@ export default function LoadoutPage() {
   const currentGloveSkin = loadout?.skins.find(
     (s) => s.weapon_defindex === currentGlove?.weapon_defindex && s.weapon_team === team
   );
-  // Find knife skin — knife defindexes are 500+
-  const currentKnifeSkin = loadout?.skins.find(
-    (s) => s.weapon_defindex >= 500 && s.weapon_defindex < 600 && s.weapon_team === team
-  );
   const currentMusic = loadout?.music.find((m) => m.weapon_team === team);
   const currentPin = loadout?.pins.find((p) => p.weapon_team === team);
 
@@ -241,9 +238,10 @@ export default function LoadoutPage() {
               {category === "knives" && (
                 <KnifeGrid
                   currentKnife={currentKnife?.knife}
-                  currentKnifeSkin={currentKnifeSkin}
-                  onSelectKnife={(weaponName, displayName) =>
-                    setSelectedKnifeType({ weaponName, displayName })
+                  skins={loadout.skins}
+                  team={team}
+                  onSelectKnife={(weaponName, displayName, defindex) =>
+                    setSelectedKnifeType({ weaponName, displayName, defindex })
                   }
                 />
               )}
@@ -293,7 +291,9 @@ export default function LoadoutPage() {
           team={team}
           currentPaintId={
             currentKnife?.knife === selectedKnifeType.weaponName
-              ? currentKnifeSkin?.weapon_paint_id
+              ? loadout?.skins.find(
+                  (s) => s.weapon_defindex === selectedKnifeType.defindex && s.weapon_team === team
+                )?.weapon_paint_id
               : undefined
           }
           onSave={handleSaveKnife}
