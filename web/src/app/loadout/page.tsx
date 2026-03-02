@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import TeamToggle from "./TeamToggle";
 import WeaponGrid from "./WeaponGrid";
 import SkinPicker from "./SkinPicker";
+import KnifeGrid from "./KnifeGrid";
 import KnifePicker from "./KnifePicker";
 import GlovePicker from "./GlovePicker";
 import AgentPicker from "./AgentPicker";
@@ -20,6 +21,10 @@ export default function LoadoutPage() {
   const [loadout, setLoadout] = useState<Loadout | null>(null);
   const [skinCatalog, setSkinCatalog] = useState<SkinItem[]>([]);
   const [selectedWeapon, setSelectedWeapon] = useState<number | null>(null);
+  const [selectedKnifeType, setSelectedKnifeType] = useState<{
+    weaponName: string;
+    displayName: string;
+  } | null>(null);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
 
@@ -103,6 +108,7 @@ export default function LoadoutPage() {
         }),
       });
       showToast("Knife saved!");
+      setSelectedKnifeType(null);
       fetchLoadout();
     } catch {
       showToast("Failed to save");
@@ -233,12 +239,11 @@ export default function LoadoutPage() {
               )}
 
               {category === "knives" && (
-                <KnifePicker
-                  team={team}
+                <KnifeGrid
                   currentKnife={currentKnife?.knife}
-                  currentDefindex={currentKnifeSkin?.weapon_defindex}
-                  currentPaintId={currentKnifeSkin?.weapon_paint_id}
-                  onSave={handleSaveKnife}
+                  onSelectKnife={(weaponName, displayName) =>
+                    setSelectedKnifeType({ weaponName, displayName })
+                  }
                 />
               )}
 
@@ -278,6 +283,22 @@ export default function LoadoutPage() {
           )}
         </main>
       </div>
+
+      {/* Knife skin picker slide-out */}
+      {selectedKnifeType && (
+        <KnifePicker
+          knifeWeaponName={selectedKnifeType.weaponName}
+          displayName={selectedKnifeType.displayName}
+          team={team}
+          currentPaintId={
+            currentKnife?.knife === selectedKnifeType.weaponName
+              ? currentKnifeSkin?.weapon_paint_id
+              : undefined
+          }
+          onSave={handleSaveKnife}
+          onClose={() => setSelectedKnifeType(null)}
+        />
+      )}
 
       {/* Skin picker slide-out */}
       {selectedWeapon !== null && (

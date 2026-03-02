@@ -19,17 +19,14 @@ export function getPool(): mysql.Pool {
 }
 
 /**
- * Queue a skin refresh for a player. The WeaponPaints plugin polls this table
- * and applies the refresh in-game automatically.
+ * Trigger an immediate skin refresh for a player by notifying the
+ * WeaponPaints plugin's HTTP listener directly.
  */
-export async function queueRefresh(steamId: string): Promise<void> {
+export async function triggerRefresh(steamId: string): Promise<void> {
+  const url = process.env.CS2_REFRESH_URL || "http://cs2:6157/refresh";
   try {
-    const p = getPool();
-    await p.query(
-      `INSERT IGNORE INTO wp_refresh_queue (steamid) VALUES (?)`,
-      [steamId]
-    );
+    await fetch(url, { method: "POST", body: steamId });
   } catch (err) {
-    console.error(`[refresh-queue] Failed to queue refresh for ${steamId}:`, err);
+    console.error(`[refresh] Failed to trigger refresh for ${steamId}:`, err);
   }
 }
