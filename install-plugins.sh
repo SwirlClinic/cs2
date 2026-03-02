@@ -139,6 +139,15 @@ if [ -f "$WP_GAMEDATA" ]; then
     echo "[plugins]   Copied weaponpaints.json gamedata"
 fi
 
+# ---- Restore curated data files ----
+# The upstream release ships with empty/incomplete data files (e.g. agents_en.json).
+# Overwrite them with our backups baked into the Docker image.
+WP_DATA="$CSGO_DIR/addons/counterstrikesharp/plugins/WeaponPaints/data"
+if [ -d "/home/steam/wp-data-backup" ]; then
+    cp /home/steam/wp-data-backup/*_en.json "$WP_DATA/"
+    echo "[plugins]   Restored curated English data files from backup"
+fi
+
 # ---- Cleanup ----
 rm -rf "$TMP_DIR"
 touch "$MARKER"
