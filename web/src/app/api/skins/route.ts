@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getPool } from "@/lib/db";
+import { getPool, queueRefresh } from "@/lib/db";
 
 export async function PUT(request: NextRequest) {
   const session = await getSession();
@@ -59,5 +59,6 @@ export async function PUT(request: NextRequest) {
     ]
   );
 
+  queueRefresh(session.steamId);
   return NextResponse.json({ success: true });
 }

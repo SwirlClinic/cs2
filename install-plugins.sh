@@ -128,7 +128,7 @@ fi
 
 # ---- 11. WeaponPaints ----
 # The zip contains a WeaponPaints/ folder, so extract to plugins/ (not plugins/WeaponPaints/)
-gh_download "Nereziel/cs2-WeaponPaints" "^WeaponPaints\\.zip$" \
+gh_download "SwirlClinic/cs2-WeaponPaints" "^WeaponPaints\\.zip$" \
     "$CSGO_DIR/addons/counterstrikesharp/plugins"
 
 # Copy gamedata to the CSS global gamedata directory
