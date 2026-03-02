@@ -1,0 +1,3 @@
+cs2.fullsteel.com {
+	reverse_proxy web:3000
+}

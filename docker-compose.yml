@@ -46,7 +46,20 @@ services:
     env_file: .env
     environment:
       CS2_REFRESH_URL: "http://cs2:6157/refresh"
-    ports:
-      - "${WP_WEB_PORT:-8080}:3000"
+    expose:
+      - "3000"
     volumes:
       - ./data/cs2/game/csgo/addons/counterstrikesharp/plugins/WeaponPaints/data:/app/wp-data:ro
+
+  caddy:
+    image: caddy:2
+    container_name: cs2-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./data/caddy_data:/data
+      - ./data/caddy_config:/config
