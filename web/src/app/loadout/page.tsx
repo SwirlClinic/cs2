@@ -241,6 +241,7 @@ export default function LoadoutPage() {
               {category === "knives" && (
                 <KnifeGrid
                   currentKnife={currentKnife?.knife}
+                  currentKnifeSkin={currentKnifeSkin}
                   onSelectKnife={(weaponName, displayName) =>
                     setSelectedKnifeType({ weaponName, displayName })
                   }

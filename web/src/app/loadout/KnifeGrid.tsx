@@ -1,16 +1,21 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import SearchBar from "@/components/SearchBar";
-import SkinCard from "@/components/SkinCard";
-import type { SkinItem } from "@/lib/types";
+import type { SkinItem, PlayerSkin } from "@/lib/types";
 
 interface KnifeGridProps {
   currentKnife?: string;
+  currentKnifeSkin?: PlayerSkin;
   onSelectKnife: (weaponName: string, displayName: string) => void;
 }
 
-export default function KnifeGrid({ currentKnife, onSelectKnife }: KnifeGridProps) {
+export default function KnifeGrid({
+  currentKnife,
+  currentKnifeSkin,
+  onSelectKnife,
+}: KnifeGridProps) {
   const [items, setItems] = useState<SkinItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -53,16 +58,56 @@ export default function KnifeGrid({ currentKnife, onSelectKnife }: KnifeGridProp
   return (
     <div className="space-y-4">
       <SearchBar value={search} onChange={setSearch} placeholder="Search knives..." />
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-        {filtered.map((knife) => (
-          <SkinCard
-            key={knife.weapon_name}
-            name={knife.paint_name}
-            image={knife.image}
-            selected={currentKnife === knife.weapon_name}
-            onClick={() => onSelectKnife(knife.weapon_name, knife.paint_name)}
-          />
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        {filtered.map((knife) => {
+          const isEquipped = currentKnife === knife.weapon_name;
+
+          // Find equipped skin image and name for this knife type
+          let image = knife.image;
+          let skinName = "Default";
+          if (isEquipped && currentKnifeSkin) {
+            const equippedEntry = items.find(
+              (s) =>
+                s.weapon_defindex === currentKnifeSkin.weapon_defindex &&
+                Number(s.paint) === currentKnifeSkin.weapon_paint_id
+            );
+            if (equippedEntry) {
+              image = equippedEntry.image;
+              skinName = equippedEntry.paint_name;
+            }
+          }
+
+          return (
+            <button
+              key={knife.weapon_name}
+              onClick={() => onSelectKnife(knife.weapon_name, knife.paint_name)}
+              className={`bg-surface border rounded-lg p-3 hover:bg-surface-hover hover:border-accent/50 transition-all cursor-pointer group ${
+                isEquipped ? "border-accent ring-1 ring-accent/30" : "border-border"
+              }`}
+            >
+              <div className="aspect-[4/3] relative mb-2 flex items-center justify-center">
+                {image ? (
+                  <Image
+                    src={image}
+                    alt={knife.paint_name}
+                    fill
+                    className="object-contain p-1"
+                    sizes="200px"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="text-text-dim text-2xl">?</div>
+                )}
+              </div>
+              <p className="text-xs text-text-bright font-medium truncate">
+                {knife.paint_name}
+              </p>
+              {isEquipped && (
+                <p className="text-xs text-text-dim truncate">{skinName}</p>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
