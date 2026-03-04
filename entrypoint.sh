@@ -50,6 +50,60 @@ WPCFG
         echo "WeaponPaints config exists — skipping"
     fi
 
+    # ----- Write DbAdmins config (only if it doesn't exist) -----
+    DBA_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/DbAdmins"
+    mkdir -p "$DBA_CFG_DIR"
+    if [ ! -f "$DBA_CFG_DIR/DbAdmins.json" ]; then
+        cat > "$DBA_CFG_DIR/DbAdmins.json" <<DBACFG
+{
+  "ConfigVersion": 1,
+  "DatabaseHost": "${WP_DB_HOST}",
+  "DatabasePort": ${WP_DB_PORT},
+  "DatabaseUser": "${WP_DB_USER}",
+  "DatabasePassword": "${WP_DB_PASS}",
+  "DatabaseName": "${WP_DB_NAME}"
+}
+DBACFG
+        echo "DbAdmins config written (first run)"
+    else
+        echo "DbAdmins config exists — skipping"
+    fi
+
+    # ----- Write VipPlugin config (only if it doesn't exist) -----
+    VP_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/VipPlugin"
+    mkdir -p "$VP_CFG_DIR"
+    if [ ! -f "$VP_CFG_DIR/VipPlugin.json" ]; then
+        cat > "$VP_CFG_DIR/VipPlugin.json" <<VPCFG
+{
+  "ConfigVersion": 1,
+  "DatabaseHost": "${WP_DB_HOST}",
+  "DatabasePort": ${WP_DB_PORT},
+  "DatabaseUser": "${WP_DB_USER}",
+  "DatabasePassword": "${WP_DB_PASS}",
+  "DatabaseName": "${WP_DB_NAME}",
+  "AdminFlag": "@css/root",
+  "MenuType": "selectable",
+  "Features": {
+    "HealthBonusEnabled": true,
+    "ArmorEnabled": true,
+    "WeaponsMenuEnabled": true,
+    "DefuserEnabled": true,
+    "GrenadesEnabled": true,
+    "ExtraMoneyEnabled": true,
+    "CommandVip": ["vip"],
+    "CommandWeapons": ["weapons", "guns"],
+    "CommandVipAdd": ["vipadd"],
+    "CommandVipRemove": ["vipremove"],
+    "CommandVipList": ["viplist"],
+    "CommandVipReload": ["vipreload"]
+  }
+}
+VPCFG
+        echo "VipPlugin config written (first run)"
+    else
+        echo "VipPlugin config exists — skipping"
+    fi
+
     # ----- Write WeaponRestrict config (only if it doesn't exist) -----
     WR_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/WeaponRestrict"
     mkdir -p "$WR_CFG_DIR"
@@ -74,26 +128,43 @@ fi
 
 # ----- Write server.cfg (only if it doesn't exist) -----
 if [ ! -f "$CSGO_DIR/cfg/server.cfg" ]; then
-    cat > "$CSGO_DIR/cfg/server.cfg" <<'SVRCFG'
-// 24/7 AWP Lego - Server Configuration
-mp_roundtime 5
-mp_roundtime_defuse 0
-mp_freezetime 3
-mp_buytime 10
-mp_buy_anywhere 1
-mp_warmuptime 15
-mp_autoteambalance 1
-mp_limitteams 1
-mp_endmatch_votenextmap 0
-mp_match_end_changelevel 0
-mp_maxrounds 59
-sv_alltalk 1
-sv_deadtalk 1
+    cat > "$CSGO_DIR/cfg/server.cfg" <<SVRCFG
+// Server identity — gameplay settings go in custom_overrides.cfg
+hostname ${CS2_SERVERNAME:-CS2 Server}
 SVRCFG
     echo "server.cfg written (first run)"
 else
-    echo "server.cfg exists — skipping (edit directly or delete to regenerate)"
+    echo "server.cfg exists — skipping"
 fi
+
+# ----- Write custom_overrides.cfg (only if it doesn't exist) -----
+if [ ! -f "$CSGO_DIR/cfg/custom_overrides.cfg" ]; then
+    cat > "$CSGO_DIR/cfg/custom_overrides.cfg" <<'OVCFG'
+// Custom server overrides — loaded after gamemode defaults via gamemode_*_server.cfg
+// Edit via the web UI (Server > Config Editor) or directly.
+// Changes here persist across map changes.
+mp_roundtime 2
+mp_freezetime 5
+mp_buytime 15
+mp_warmuptime 30
+mp_autoteambalance 1
+sv_alltalk 0
+OVCFG
+    echo "custom_overrides.cfg written (first run)"
+else
+    echo "custom_overrides.cfg exists — skipping"
+fi
+
+# ----- Write gamemode_*_server.cfg files (exec custom_overrides.cfg) -----
+for gmcfg in "$CSGO_DIR"/cfg/gamemode_*.cfg; do
+    base=$(basename "$gmcfg" .cfg)
+    case "$base" in *_server|*_offline|*_short|*_tmm) continue ;; esac
+    target="$CSGO_DIR/cfg/${base}_server.cfg"
+    if [ ! -f "$target" ]; then
+        echo "exec custom_overrides.cfg" > "$target"
+        echo "Created $target"
+    fi
+done
 
 # ----- Run pre.sh hook if present -----
 if [ -x "$CS2_DIR/pre.sh" ]; then

@@ -20,6 +20,17 @@ export async function getSession() {
   return getIronSession<SessionData>(cookieStore, sessionOptions);
 }
 
+// Admin check (css_admins table)
+export async function isAdmin(steamId: string): Promise<boolean> {
+  const { getPool } = await import("./db");
+  const pool = getPool();
+  const [rows] = await pool.query(
+    "SELECT 1 FROM css_admins WHERE steamid = ? LIMIT 1",
+    [steamId]
+  );
+  return (rows as unknown[]).length > 0;
+}
+
 // Steam OpenID 2.0 constants
 const STEAM_OPENID_URL = "https://steamcommunity.com/openid/login";
 

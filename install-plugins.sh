@@ -139,6 +139,22 @@ if [ -f "$WP_GAMEDATA" ]; then
     echo "[plugins]   Copied weaponpaints.json gamedata"
 fi
 
+# ---- 12. DbAdmins (built-in) ----
+DBADMINS_DIR="$CSGO_DIR/addons/counterstrikesharp/plugins/DbAdmins"
+if [ -d "/home/steam/plugins-builtin/DbAdmins" ]; then
+    echo "[plugins]   Installing DbAdmins..."
+    mkdir -p "$DBADMINS_DIR"
+    cp /home/steam/plugins-builtin/DbAdmins/* "$DBADMINS_DIR/"
+fi
+
+# ---- 13. VipPlugin (built-in) ----
+VIPPLUGIN_DIR="$CSGO_DIR/addons/counterstrikesharp/plugins/VipPlugin"
+if [ -d "/home/steam/plugins-builtin/VipPlugin" ]; then
+    echo "[plugins]   Installing VipPlugin..."
+    mkdir -p "$VIPPLUGIN_DIR"
+    cp -r /home/steam/plugins-builtin/VipPlugin/* "$VIPPLUGIN_DIR/"
+fi
+
 # ---- Restore curated data files ----
 # The upstream release ships with empty/incomplete data files (e.g. agents_en.json).
 # Overwrite them with our backups baked into the Docker image.

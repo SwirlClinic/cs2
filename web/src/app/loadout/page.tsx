@@ -12,6 +12,8 @@ import GlovePicker from "./GlovePicker";
 import AgentPicker from "./AgentPicker";
 import MusicPicker from "./MusicPicker";
 import PinPicker from "./PinPicker";
+import VipManager from "./VipManager";
+import ServerManager from "./ServerManager";
 import { DEFINDEX_TO_WEAPON, WEAPON_NAMES } from "@/lib/weapons";
 import type { Loadout, SkinItem } from "@/lib/types";
 
@@ -28,6 +30,7 @@ export default function LoadoutPage() {
   } | null>(null);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
+  const [showVip, setShowVip] = useState(false);
 
   // Fetch loadout
   const fetchLoadout = useCallback(async () => {
@@ -47,6 +50,15 @@ export default function LoadoutPage() {
   useEffect(() => {
     fetchLoadout();
   }, [fetchLoadout]);
+
+  // Check VIP status
+  useEffect(() => {
+    fetch("/api/vip/groups")
+      .then((r) => {
+        if (r.ok) setShowVip(true);
+      })
+      .catch(() => {});
+  }, []);
 
   // Fetch skin catalog for current weapon category
   useEffect(() => {
@@ -211,7 +223,7 @@ export default function LoadoutPage() {
     <div className="flex flex-col h-screen">
       <Header />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar activeCategory={category} onCategoryChange={setCategory} />
+        <Sidebar activeCategory={category} onCategoryChange={setCategory} showVip={showVip} />
 
         <main className="flex-1 overflow-y-auto p-6">
           {/* Team toggle + category title */}
@@ -219,12 +231,16 @@ export default function LoadoutPage() {
             <h2 className="text-xl font-bold text-text-bright capitalize">
               {category === "machineguns" ? "Machine Guns" : category}
             </h2>
-            {category !== "agents" && (
+            {category !== "agents" && category !== "vip" && category !== "server" && (
               <TeamToggle team={team} onChange={setTeam} />
             )}
           </div>
 
-          {!loadout ? (
+          {category === "vip" ? (
+            <VipManager />
+          ) : category === "server" ? (
+            <ServerManager />
+          ) : !loadout ? (
             <div className="flex items-center justify-center h-64 text-text-dim">
               Loading loadout...
             </div>

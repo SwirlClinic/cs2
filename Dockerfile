@@ -37,6 +37,7 @@ RUN mkdir -p /opt/steamcmd \
 COPY --chown=steam:steam entrypoint.sh /home/steam/entrypoint.sh
 COPY --chown=steam:steam install-plugins.sh /home/steam/install-plugins.sh
 COPY --chown=steam:steam wp-data/ /home/steam/wp-data-backup/
+COPY --chown=steam:steam plugins/ /home/steam/plugins-builtin/
 RUN chmod +x /home/steam/entrypoint.sh /home/steam/install-plugins.sh
 
 USER steam

@@ -13,14 +13,21 @@ const CATEGORIES = [
   { id: "pins", label: "Pins", icon: "📌" },
 ] as const;
 
+const ADMIN_CATEGORIES = [
+  { id: "vip", label: "VIP", icon: "⭐" },
+  { id: "server", label: "Server", icon: "🖥️" },
+] as const;
+
 interface SidebarProps {
   activeCategory: string;
   onCategoryChange: (category: string) => void;
+  showVip?: boolean;
 }
 
 export default function Sidebar({
   activeCategory,
   onCategoryChange,
+  showVip,
 }: SidebarProps) {
   return (
     <nav className="w-48 bg-surface border-r border-border shrink-0 overflow-y-auto">
@@ -45,6 +52,32 @@ export default function Sidebar({
             </li>
           ))}
         </ul>
+
+        {showVip && (
+          <>
+            <div className="border-t border-border my-3" />
+            <p className="text-xs uppercase tracking-wider text-text-dim mb-2 px-2">
+              Admin
+            </p>
+            <ul className="space-y-0.5">
+              {ADMIN_CATEGORIES.map((cat) => (
+                <li key={cat.id}>
+                  <button
+                    onClick={() => onCategoryChange(cat.id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
+                      activeCategory === cat.id
+                        ? "bg-accent text-white"
+                        : "text-text hover:bg-surface-hover"
+                    }`}
+                  >
+                    <span className="text-base">{cat.icon}</span>
+                    {cat.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </nav>
   );

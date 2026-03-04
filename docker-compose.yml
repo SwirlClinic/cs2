@@ -37,7 +37,8 @@ services:
       retries: 3
 
   web:
-    image: ghcr.io/swirlclinic/cs2/web:latest
+    build: ./web
+    image: cs2-web:local
     container_name: cs2-web
     restart: unless-stopped
     depends_on:
@@ -46,10 +47,15 @@ services:
     env_file: .env
     environment:
       CS2_REFRESH_URL: "http://cs2:6157/refresh"
+      CS2_RCON_HOST: "cs2"
+      CS2_RCON_PORT: "27015"
+      CS2_RCON_PASSWORD: "${CS2_RCONPW}"
     expose:
       - "3000"
     volumes:
       - ./data/cs2/game/csgo/addons/counterstrikesharp/plugins/WeaponPaints/data:/app/wp-data:ro
+      - ./data/cs2/game/csgo/cfg:/app/server-cfg
+      - ./data/cs2/game/bin/linuxsteamrt64/steamapps/workshop/content/730:/app/workshop-maps:ro
 
   caddy:
     image: caddy:2

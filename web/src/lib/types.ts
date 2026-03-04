@@ -115,6 +115,25 @@ export interface Loadout {
   pins: PlayerPin[];
 }
 
+// ---- VIP ----
+
+export interface VipGroup {
+  id: number;
+  group_name: string;
+  perks: Record<string, number | boolean>;
+  weapons: string | null;
+}
+
+export interface VipPlayer {
+  id: number;
+  steamid: string;
+  player_name: string;
+  vip_group: string;
+  expire_date: string;
+  created_at: string;
+  group_name?: string; // from JOIN
+}
+
 // ---- Weapon categories ----
 
 export type WeaponCategory =
