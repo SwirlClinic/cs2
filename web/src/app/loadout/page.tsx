@@ -14,6 +14,7 @@ import MusicPicker from "./MusicPicker";
 import PinPicker from "./PinPicker";
 import VipManager from "./VipManager";
 import ServerManager from "./ServerManager";
+import MyVipSettings from "./MyVipSettings";
 import { DEFINDEX_TO_WEAPON, WEAPON_NAMES } from "@/lib/weapons";
 import type { Loadout, SkinItem } from "@/lib/types";
 
@@ -31,6 +32,7 @@ export default function LoadoutPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
   const [showVip, setShowVip] = useState(false);
+  const [showMyVip, setShowMyVip] = useState(false);
 
   // Fetch loadout
   const fetchLoadout = useCallback(async () => {
@@ -51,11 +53,20 @@ export default function LoadoutPage() {
     fetchLoadout();
   }, [fetchLoadout]);
 
-  // Check VIP status
+  // Check admin VIP status
   useEffect(() => {
     fetch("/api/vip/groups")
       .then((r) => {
         if (r.ok) setShowVip(true);
+      })
+      .catch(() => {});
+  }, []);
+
+  // Check player VIP status
+  useEffect(() => {
+    fetch("/api/vip/me")
+      .then((r) => {
+        if (r.ok) setShowMyVip(true);
       })
       .catch(() => {});
   }, []);
@@ -223,7 +234,7 @@ export default function LoadoutPage() {
     <div className="flex flex-col h-screen">
       <Header />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar activeCategory={category} onCategoryChange={setCategory} showVip={showVip} />
+        <Sidebar activeCategory={category} onCategoryChange={setCategory} showVip={showVip} showMyVip={showMyVip} />
 
         <main className="flex-1 overflow-y-auto p-6">
           {/* Team toggle + category title */}
@@ -231,12 +242,14 @@ export default function LoadoutPage() {
             <h2 className="text-xl font-bold text-text-bright capitalize">
               {category === "machineguns" ? "Machine Guns" : category}
             </h2>
-            {category !== "agents" && category !== "vip" && category !== "server" && (
+            {category !== "agents" && category !== "vip" && category !== "server" && category !== "myvip" && (
               <TeamToggle team={team} onChange={setTeam} />
             )}
           </div>
 
-          {category === "vip" ? (
+          {category === "myvip" ? (
+            <MyVipSettings />
+          ) : category === "vip" ? (
             <VipManager />
           ) : category === "server" ? (
             <ServerManager />

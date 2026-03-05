@@ -132,6 +132,7 @@ export interface VipPlayer {
   expire_date: string;
   created_at: string;
   group_name?: string; // from JOIN
+  preferences?: Record<string, boolean>;
 }
 
 // ---- Weapon categories ----

@@ -62,6 +62,8 @@ async function runMigrations(p: mysql.Pool) {
       UNIQUE KEY steamid (steamid)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
   `);
+  // Add preferences column to vip_players if missing
+  await migrateVipPlayersPreferences(p);
   console.log("[db] Migrations complete");
 }
 
@@ -98,6 +100,19 @@ async function migrateVipGroupsPerks(p: mysql.Pool) {
     console.log("[db] Migrated vip_groups to JSON perks");
   } catch (err) {
     console.error("[db] Perks migration error:", err);
+  }
+}
+
+async function migrateVipPlayersPreferences(p: mysql.Pool) {
+  try {
+    const [cols] = await p.query(
+      "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'vip_players' AND COLUMN_NAME = 'preferences'"
+    );
+    if (Array.isArray(cols) && cols.length > 0) return; // already exists
+    await p.query("ALTER TABLE vip_players ADD COLUMN preferences JSON DEFAULT NULL");
+    console.log("[db] Added preferences column to vip_players");
+  } catch (err) {
+    console.error("[db] vip_players preferences migration error:", err);
   }
 }
 

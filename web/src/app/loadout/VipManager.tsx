@@ -23,13 +23,53 @@ const tdClass = "px-3 py-2 text-sm text-text";
 
 // ---- Spawn items (grenades/equipment) ----
 
-const SPAWN_ITEMS: { value: string; label: string }[] = [
-  { value: "weapon_hegrenade", label: "HE Grenade" },
-  { value: "weapon_flashbang", label: "Flashbang" },
-  { value: "weapon_smokegrenade", label: "Smoke Grenade" },
-  { value: "weapon_molotov", label: "Molotov" },
-  { value: "weapon_incgrenade", label: "Incendiary Grenade" },
-  { value: "weapon_decoy", label: "Decoy Grenade" },
+const SPAWN_ITEMS: { value: string; label: string; group: string }[] = [
+  // Grenades
+  { value: "weapon_hegrenade", label: "HE Grenade", group: "Grenades" },
+  { value: "weapon_flashbang", label: "Flashbang", group: "Grenades" },
+  { value: "weapon_smokegrenade", label: "Smoke Grenade", group: "Grenades" },
+  { value: "weapon_molotov", label: "Molotov", group: "Grenades" },
+  { value: "weapon_incgrenade", label: "Incendiary Grenade", group: "Grenades" },
+  { value: "weapon_decoy", label: "Decoy Grenade", group: "Grenades" },
+  // Rifles
+  { value: "weapon_ak47", label: "AK-47", group: "Rifles" },
+  { value: "weapon_m4a1", label: "M4A4", group: "Rifles" },
+  { value: "weapon_m4a1_silencer", label: "M4A1-S", group: "Rifles" },
+  { value: "weapon_awp", label: "AWP", group: "Rifles" },
+  { value: "weapon_aug", label: "AUG", group: "Rifles" },
+  { value: "weapon_sg556", label: "SG 553", group: "Rifles" },
+  { value: "weapon_famas", label: "FAMAS", group: "Rifles" },
+  { value: "weapon_galilar", label: "Galil AR", group: "Rifles" },
+  { value: "weapon_ssg08", label: "SSG 08", group: "Rifles" },
+  { value: "weapon_scar20", label: "SCAR-20", group: "Rifles" },
+  { value: "weapon_g3sg1", label: "G3SG1", group: "Rifles" },
+  // SMGs
+  { value: "weapon_p90", label: "P90", group: "SMGs" },
+  { value: "weapon_mac10", label: "MAC-10", group: "SMGs" },
+  { value: "weapon_mp9", label: "MP9", group: "SMGs" },
+  { value: "weapon_mp7", label: "MP7", group: "SMGs" },
+  { value: "weapon_mp5sd", label: "MP5-SD", group: "SMGs" },
+  { value: "weapon_ump45", label: "UMP-45", group: "SMGs" },
+  { value: "weapon_bizon", label: "PP-Bizon", group: "SMGs" },
+  // Shotguns
+  { value: "weapon_nova", label: "Nova", group: "Shotguns" },
+  { value: "weapon_xm1014", label: "XM1014", group: "Shotguns" },
+  { value: "weapon_mag7", label: "MAG-7", group: "Shotguns" },
+  { value: "weapon_sawedoff", label: "Sawed-Off", group: "Shotguns" },
+  // Machine Guns
+  { value: "weapon_m249", label: "M249", group: "Machine Guns" },
+  { value: "weapon_negev", label: "Negev", group: "Machine Guns" },
+  // Pistols
+  { value: "weapon_deagle", label: "Desert Eagle", group: "Pistols" },
+  { value: "weapon_glock", label: "Glock-18", group: "Pistols" },
+  { value: "weapon_usp_silencer", label: "USP-S", group: "Pistols" },
+  { value: "weapon_hkp2000", label: "P2000", group: "Pistols" },
+  { value: "weapon_p250", label: "P250", group: "Pistols" },
+  { value: "weapon_fiveseven", label: "Five-SeveN", group: "Pistols" },
+  { value: "weapon_tec9", label: "Tec-9", group: "Pistols" },
+  { value: "weapon_elite", label: "Dual Berettas", group: "Pistols" },
+  { value: "weapon_cz75a", label: "CZ75-Auto", group: "Pistols" },
+  { value: "weapon_revolver", label: "R8 Revolver", group: "Pistols" },
 ];
 
 // ---- Helper: perks summary for table ----
@@ -43,6 +83,8 @@ function perksSummary(perks: Record<string, number | boolean>): string {
   if (perks.defuser) parts.push("Defuser");
   if (typeof perks.extra_money === "number" && perks.extra_money > 0)
     parts.push(`+$${perks.extra_money}`);
+  if (perks.bhop) parts.push("Bhop");
+  if (perks.unlimited_ammo) parts.push("Unlimited Ammo");
   for (const [key, val] of Object.entries(perks)) {
     if (key.startsWith("weapon_") && typeof val === "number" && val > 0) {
       const item = SPAWN_ITEMS.find((i) => i.value === key);
@@ -153,6 +195,8 @@ export default function VipManager() {
     if (editingGroup.perks.armor) perks.armor = true;
     if (editingGroup.perks.helmet) perks.helmet = true;
     if (editingGroup.perks.defuser) perks.defuser = true;
+    if (editingGroup.perks.bhop) perks.bhop = true;
+    if (editingGroup.perks.unlimited_ammo) perks.unlimited_ammo = true;
     const money = editingGroup.perks.extra_money;
     if (typeof money === "number" && money > 0) perks.extra_money = money;
     // Spawn items
@@ -406,6 +450,34 @@ export default function VipManager() {
                     />
                     Defuser
                   </label>
+                  <label className="flex items-center gap-2 text-sm text-text">
+                    <input
+                      type="checkbox"
+                      className={checkboxClass}
+                      checked={!!editingGroup.perks.bhop}
+                      onChange={(e) =>
+                        setEditingGroup({
+                          ...editingGroup,
+                          perks: { ...editingGroup.perks, bhop: e.target.checked },
+                        })
+                      }
+                    />
+                    Bunny Hop
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-text">
+                    <input
+                      type="checkbox"
+                      className={checkboxClass}
+                      checked={!!editingGroup.perks.unlimited_ammo}
+                      onChange={(e) =>
+                        setEditingGroup({
+                          ...editingGroup,
+                          perks: { ...editingGroup.perks, unlimited_ammo: e.target.checked },
+                        })
+                      }
+                    />
+                    Unlimited Grenades
+                  </label>
                 </div>
               </div>
 
@@ -430,10 +502,19 @@ export default function VipManager() {
                         value={row.item}
                         onChange={(e) => updateSpawnItem(row.key, "item", e.target.value)}
                       >
-                        {SPAWN_ITEMS.map((si) => (
-                          <option key={si.value} value={si.value}>
-                            {si.label}
-                          </option>
+                        {Object.entries(
+                          SPAWN_ITEMS.reduce<Record<string, typeof SPAWN_ITEMS>>((acc, si) => {
+                            (acc[si.group] ??= []).push(si);
+                            return acc;
+                          }, {})
+                        ).map(([group, items]) => (
+                          <optgroup key={group} label={group}>
+                            {items.map((si) => (
+                              <option key={si.value} value={si.value}>
+                                {si.label}
+                              </option>
+                            ))}
+                          </optgroup>
                         ))}
                       </select>
                       <input
