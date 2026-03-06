@@ -85,6 +85,8 @@ function perksSummary(perks: Record<string, number | boolean>): string {
     parts.push(`+$${perks.extra_money}`);
   if (perks.bhop) parts.push("Bhop");
   if (perks.unlimited_ammo) parts.push("Unlimited Ammo");
+  if (typeof perks.speed === "number" && perks.speed > 0)
+    parts.push(`${perks.speed}x Speed`);
   for (const [key, val] of Object.entries(perks)) {
     if (key.startsWith("weapon_") && typeof val === "number" && val > 0) {
       const item = SPAWN_ITEMS.find((i) => i.value === key);
@@ -197,6 +199,8 @@ export default function VipManager() {
     if (editingGroup.perks.defuser) perks.defuser = true;
     if (editingGroup.perks.bhop) perks.bhop = true;
     if (editingGroup.perks.unlimited_ammo) perks.unlimited_ammo = true;
+    const speed = editingGroup.perks.speed;
+    if (typeof speed === "number" && speed > 0) perks.speed = speed;
     const money = editingGroup.perks.extra_money;
     if (typeof money === "number" && money > 0) perks.extra_money = money;
     // Spawn items
@@ -388,6 +392,22 @@ export default function VipManager() {
                         setEditingGroup({
                           ...editingGroup,
                           perks: { ...editingGroup.perks, health_bonus: Number(e.target.value) },
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-text-dim mb-1">Speed (e.g. 1.3)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      className={inputClass + " w-full"}
+                      value={(editingGroup.perks.speed as number) ?? 0}
+                      onChange={(e) =>
+                        setEditingGroup({
+                          ...editingGroup,
+                          perks: { ...editingGroup.perks, speed: Number(e.target.value) },
                         })
                       }
                     />

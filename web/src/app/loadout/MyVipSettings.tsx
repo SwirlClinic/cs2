@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 const TOGGLEABLE_PERKS: { key: string; label: string; description: string }[] = [
   { key: "bhop", label: "Bunny Hop", description: "Auto bunny hop when holding jump" },
   { key: "unlimited_ammo", label: "Unlimited Grenades", description: "Grenades are replenished after throwing" },
+  { key: "speed", label: "Speed Boost", description: "Move faster than normal" },
 ];
 
 interface VipMeData {
@@ -72,10 +73,11 @@ export default function MyVipSettings() {
     day: "numeric",
   });
 
-  // Only show perks that are enabled on the group
-  const availablePerks = TOGGLEABLE_PERKS.filter(
-    (p) => data.perks[p.key] === true
-  );
+  // Only show perks that are enabled on the group (boolean true or numeric > 0)
+  const availablePerks = TOGGLEABLE_PERKS.filter((p) => {
+    const v = data.perks[p.key];
+    return v === true || (typeof v === "number" && v > 0);
+  });
 
   return (
     <div className="space-y-6 max-w-lg">
