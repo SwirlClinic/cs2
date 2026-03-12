@@ -9,6 +9,16 @@ if [ "$STEAMAPPVALIDATE" = "1" ]; then
     VALIDATE_FLAG="validate"
 fi
 
+# ----- Fix corrupted manifest from interrupted updates -----
+MANIFEST="$CS2_DIR/steamapps/appmanifest_730.acf"
+if [ -f "$MANIFEST" ]; then
+    CUR_STATE=$(grep -oP '"StateFlags"\s+"\K[^"]+' "$MANIFEST" 2>/dev/null || true)
+    if [ -n "$CUR_STATE" ] && [ "$CUR_STATE" != "4" ]; then
+        echo "[entrypoint] Manifest StateFlags=$CUR_STATE (dirty) — resetting to 4 for incremental update"
+        sed -i 's/"StateFlags"\s\+"[0-9]\+"/"StateFlags"\t\t"4"/' "$MANIFEST"
+    fi
+fi
+
 echo "Updating CS2 (app 730)..."
 steamcmd +force_install_dir "$CS2_DIR" \
     +login anonymous \
