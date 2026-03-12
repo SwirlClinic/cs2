@@ -28,6 +28,14 @@ fi
 # ----- Install plugins (Metamod, CounterStrikeSharp, WeaponPaints) -----
 /home/steam/install-plugins.sh
 
+# ----- Ensure Metamod is in gameinfo.gi (CS2 updates overwrite this file) -----
+CSGO_DIR_MM="$CS2_DIR/game/csgo"
+GAMEINFO="$CSGO_DIR_MM/gameinfo.gi"
+if [ -f "$GAMEINFO" ] && ! grep -q "csgo/addons/metamod" "$GAMEINFO" 2>/dev/null; then
+    echo "[entrypoint] Patching gameinfo.gi for Metamod (was reset by CS2 update)..."
+    sed -i '/Game_LowViolence/a\\t\t\tGame\tcsgo/addons/metamod' "$GAMEINFO"
+fi
+
 # ----- Write WeaponPaints config (only if it doesn't exist) -----
 CSGO_DIR="$CS2_DIR/game/csgo"
 WP_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/WeaponPaints"
