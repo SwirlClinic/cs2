@@ -16,6 +16,7 @@ if [ -f "$MANIFEST" ]; then
     if [ -n "$CUR_STATE" ] && [ "$CUR_STATE" != "4" ]; then
         echo "[entrypoint] Manifest StateFlags=$CUR_STATE (dirty) — resetting to 4 for incremental update"
         sed -i 's/"StateFlags"\s\+"[0-9]\+"/"StateFlags"\t\t"4"/' "$MANIFEST"
+        sed -i 's/"UpdateResult"\s\+"[0-9]\+"/"UpdateResult"\t\t"0"/' "$MANIFEST"
     fi
 fi
 
