@@ -1,16 +1,16 @@
 services:
   cs2:
     image: ghcr.io/swirlclinic/cs2:latest
-    container_name: cs2-server
+    container_name: ${CS2_INSTANCE:-cs2}-server
     restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy
     env_file: .env
     ports:
-      - "27015:27015/tcp"
-      - "27015:27015/udp"
-      - "27020:27020/udp"
+      - "${CS2_PORT:-27015}:${CS2_PORT:-27015}/tcp"
+      - "${CS2_PORT:-27015}:${CS2_PORT:-27015}/udp"
+      - "${TV_PORT:-27020}:${TV_PORT:-27020}/udp"
     volumes:
       - ./data/cs2:/home/steam/cs2-dedicated
     deploy:
@@ -20,7 +20,7 @@ services:
 
   mysql:
     image: mysql:8.0
-    container_name: cs2-mysql
+    container_name: ${CS2_INSTANCE:-cs2}-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${WP_DB_PASS:-weaponpaints}
@@ -39,7 +39,7 @@ services:
   web:
     build: ./web
     image: cs2-web:local
-    container_name: cs2-web
+    container_name: ${CS2_INSTANCE:-cs2}-web
     restart: unless-stopped
     depends_on:
       mysql:
@@ -48,19 +48,23 @@ services:
     environment:
       CS2_REFRESH_URL: "http://cs2:6157/refresh"
       CS2_RCON_HOST: "cs2"
-      CS2_RCON_PORT: "27015"
+      CS2_RCON_PORT: "${CS2_PORT:-27015}"
       CS2_RCON_PASSWORD: "${CS2_RCONPW}"
-    expose:
-      - "3000"
+    ports:
+      - "${WP_WEB_PORT:-8080}:3000"
     volumes:
       - ./data/cs2/game/csgo/addons/counterstrikesharp/plugins/WeaponPaints/data:/app/wp-data:ro
       - ./data/cs2/game/csgo/cfg:/app/server-cfg
       - ./data/cs2/game/bin/linuxsteamrt64/steamapps/workshop/content/730:/app/workshop-maps:ro
 
+  # Optional HTTPS reverse proxy for a public domain. Opt in with
+  # COMPOSE_PROFILES=caddy in .env (needs ports 80/443 free and a Caddyfile
+  # pointing your domain at web:3000 — see Caddyfile.example).
   caddy:
     image: caddy:2
-    container_name: cs2-caddy
+    container_name: ${CS2_INSTANCE:-cs2}-caddy
     restart: unless-stopped
+    profiles: ["caddy"]
     ports:
       - "80:80"
       - "443:443"
