@@ -72,11 +72,18 @@ install_css_plugin() {
 # other plugins (CounterStrikeSharp, MultiAddonManager) drop in there.
 install_metamod() {
     echo "[plugins] Refreshing Metamod:Source (latest master build)..."
-    local mm_url
-    mm_url=$(curl -fsSL "https://www.sourcemm.net/downloads.php?branch=master&all=1" \
-        | grep -oP 'https://mms\.alliedmods\.net/mmsdrop/2\.0/mmsource-[^"]+linux\.tar\.gz' \
-        | head -1) || true
-    if [ -z "$mm_url" ] || ! curl -fsSL -o "$TMP_DIR/metamod.tar.gz" "$mm_url"; then
+    local mm_base="https://mms.alliedmods.net/mmsdrop/2.0"
+    local mm_file
+    # The mmsource-latest-linux pointer file names the newest build. Query it
+    # with a cache-buster: the human downloads page sits behind a CDN whose
+    # edges can serve a stale copy that points at builds broken by newer CS2.
+    mm_file=$(curl -fsSL "$mm_base/mmsource-latest-linux?nocache=$$" | tr -d '[:space:]') || true
+    if [ -z "$mm_file" ]; then
+        mm_file=$(curl -fsSL "https://www.sourcemm.net/downloads.php?branch=master&all=1" \
+            | grep -oP 'mmsource-[^"/]+linux\.tar\.gz' \
+            | head -1) || true
+    fi
+    if [ -z "$mm_file" ] || ! curl -fsSL -o "$TMP_DIR/metamod.tar.gz" "$mm_base/$mm_file"; then
         if [ -d "$CSGO_DIR/addons/metamod" ]; then
             echo "[plugins]   WARNING: Metamod download failed — keeping existing install" >&2
             return 0
@@ -84,9 +91,16 @@ install_metamod() {
         echo "[plugins]   ERROR: Metamod download failed and no existing install" >&2
         return 1
     fi
-    echo "[plugins]   Installing $(basename "$mm_url")..."
+    echo "[plugins]   Installing $mm_file..."
     mkdir -p "$CSGO_DIR"
-    tar -xzf "$TMP_DIR/metamod.tar.gz" -C "$CSGO_DIR"
+    if ! tar -xzf "$TMP_DIR/metamod.tar.gz" -C "$CSGO_DIR"; then
+        if [ -d "$CSGO_DIR/addons/metamod" ]; then
+            echo "[plugins]   WARNING: Metamod extraction failed — keeping existing install" >&2
+            return 0
+        fi
+        echo "[plugins]   ERROR: Metamod extraction failed and no existing install" >&2
+        return 1
+    fi
 }
 
 # Allow forcing a reinstall via env var
