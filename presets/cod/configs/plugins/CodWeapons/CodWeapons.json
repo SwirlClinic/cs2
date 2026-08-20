@@ -1,0 +1,11 @@
+{
+  "WeaponSubclass": {
+    "weapon_m4a1": "60",
+    "weapon_hkp2000": "61",
+    "weapon_deagle": "64",
+    "weapon_mp7": "23"
+  },
+  "ModelOverride": {},
+  "AnnounceLoadout": true,
+  "ConfigVersion": 1
+}

@@ -2,3 +2,4 @@
 # Names match directories under /home/steam/plugins-optional (compiled in the
 # Docker build). Presets without a plugins.list enable none of them.
 CodMovement
+CodWeapons

@@ -74,25 +74,37 @@ to any other mode cleanly turns sprint/slide off. Tune the feel in
 
 ### Custom weapon models / animations
 
-CS2 (Source 2) delivers custom weapon content as a **Workshop addon** that
-clients download and mount — there's no dropping loose model files on the
-server like CS:GO. The stack already ships
+Weapon models and animations are changed at runtime by the in-repo
+**CodWeapons** plugin (`src/CodWeapons/`), scoped to the `cod` preset. It has
+two mechanisms, configured in
+`addons/counterstrikesharp/configs/plugins/CodWeapons/CodWeapons.json`:
+
+- **`WeaponSubclass`** — swaps a weapon to another *defined subclass* via CS2's
+  `ChangeSubclass` input (the animgraph2-safe method production stores use),
+  changing model **and** animations. Out of the box the arena ships a distinct
+  arsenal: M4A1→M4A1-S, P2000→USP-S, Deagle→R8 Revolver, MP7→MP5-SD (all by
+  item-definition index). You can also point a value at a **custom subclass
+  name** defined by a mounted Workshop addon.
+- **`ModelOverride`** — direct `SetModel` of a custom `.vmdl` (view + world) for
+  fully-bespoke models, empty by default.
+
+Where truly-bespoke assets come from: CS2 (Source 2) only loads new model/
+animation content from a **Workshop addon** — you can't drop loose model files
+on the server like CS:GO. The stack ships
 [MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager), which
-downloads and mounts extra Workshop addons server-side and reloads the map to
-precache them. To use custom weapon models:
+downloads and mounts extra Workshop addons server-side and reloads to precache
+them. To use your own weapon art:
 
-1. Get a Workshop **addon** ID for the weapon models (either publish your own
-   with the [CS2 Workshop Tools](https://developer.valvesoftware.com/wiki/Counter-Strike_2_Workshop_Tools),
-   or subscribe to an existing weapon-model replacement addon).
-2. In `presets/cod/cfg/preset.cfg`, uncomment and set:
-   `mm_extra_addons "<workshop_id>"` (comma-separated for several).
-3. Restart the server — MAM downloads the addon and reloads to precache it.
+1. Publish the models as an addon with the
+   [CS2 Workshop Tools](https://developer.valvesoftware.com/wiki/Counter-Strike_2_Workshop_Tools)
+   (this is the only way to introduce new 3D assets — it needs the GUI tools).
+2. Set `mm_extra_addons "<workshop_id>"` in `presets/cod/cfg/preset.cfg`.
+3. Point `ModelOverride` (or a custom `WeaponSubclass` name) at the addon's
+   models. Restart — MAM downloads and precaches, CodWeapons applies them.
 
-What's realistic to know up front: swapping **world/weapon models** this way
-works well; replacing **first-person viewmodels with custom animations** is
-only reliable when the content is authored as a proper CS2 Workshop addon
-(Workshop Tools), not forced from loose files. The pipeline here is wired and
-ready — you supply the addon.
+So the applicator and the mount pipeline are both built and working; the arena
+has custom weapon models out of the box, and bespoke art plugs into the same
+config once you publish it as an addon.
 
 ## Fleet / multiple servers
 
