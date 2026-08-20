@@ -23,10 +23,16 @@ public class CodWeapons : BasePlugin, IPluginConfig<CodWeaponsConfig>
 
     public CodWeaponsConfig Config { get; set; } = new();
 
+    // Weapon entity handles already processed, so each weapon is remodeled once
+    // for its lifetime rather than on every equip. Cleared on map change.
+    private readonly HashSet<nint> _applied = new();
+
     public void OnConfigParsed(CodWeaponsConfig config) => Config = config;
 
     public override void Load(bool hotReload)
     {
+        RegisterListener<Listeners.OnMapStart>(_ => _applied.Clear());
+
         // Re-apply whenever a weapon is equipped (covers pickups and switches).
         RegisterEventHandler<EventItemEquip>((ev, _) =>
         {
@@ -61,14 +67,22 @@ public class CodWeapons : BasePlugin, IPluginConfig<CodWeaponsConfig>
             var weapon = handle.Value;
             if (weapon is not { IsValid: true })
                 continue;
+            if (!_applied.Add(weapon.Handle))
+                continue; // already remodeled this weapon
 
             var designer = weapon.DesignerName;
 
             if (Config.WeaponSubclass.TryGetValue(designer, out var subclass) && !string.IsNullOrWhiteSpace(subclass))
+            {
+                Logger.LogInformation("Applying subclass {Subclass} to {Designer}", subclass, designer);
                 ChangeSubclass(weapon, subclass);
+            }
 
             if (Config.ModelOverride.TryGetValue(designer, out var model) && !string.IsNullOrWhiteSpace(model))
+            {
+                Logger.LogInformation("Applying model {Model} to {Designer}", model, designer);
                 SetWeaponModel(player, weapon, model);
+            }
         }
     }
 
