@@ -14,7 +14,7 @@ if [ -n "$GITHUB_TOKEN" ]; then
 fi
 
 echo "[retakes] Fetching latest RetakesPlugin release..."
-URL=$(curl -fsSL "${AUTH[@]}" "https://api.github.com/repos/B3none/cs2-retakes/releases/latest" \
+URL=$(curl -fsSL --retry 3 --retry-delay 2 "${AUTH[@]}" "https://api.github.com/repos/B3none/cs2-retakes/releases/latest" \
     | jq -r '.assets[] | select(.name | test("^RetakesPlugin-[0-9.]+\\.zip$")) | .browser_download_url' \
     | head -1)
 if [ -z "$URL" ] || [ "$URL" = "null" ]; then

@@ -15,6 +15,10 @@ mkdir -p "$TMP_DIR"
 
 # --- helper: download latest release asset from GitHub ---
 # usage: gh_download <owner/repo> <filename-pattern> <dest-dir>
+# The GitHub API intermittently returns empty/failed responses (and rate
+# limits unauthenticated callers), so the lookup retries before giving up —
+# a single blip here would otherwise kill the boot and crash-loop the
+# container, burning more API quota each cycle.
 gh_download() {
     local repo="$1" pattern="$2" dest="$3"
     echo "[plugins]   Fetching latest release from $repo..."
@@ -22,18 +26,27 @@ gh_download() {
     if [ -n "$GITHUB_TOKEN" ]; then
         auth_header=(-H "Authorization: Bearer $GITHUB_TOKEN")
     fi
-    local url
-    url=$(curl -fsSL "${auth_header[@]}" "https://api.github.com/repos/${repo}/releases/latest" \
-        | jq -r --arg pat "${pattern}" '.assets[] | select(.name | test($pat)) | .browser_download_url' \
-        | head -1)
-    if [ -z "$url" ] || [ "$url" = "null" ]; then
-        echo "[plugins]   ERROR: no asset matching '$pattern' in $repo" >&2
+    local url="" attempt
+    for attempt in 1 2 3; do
+        url=$(curl -fsSL --retry 3 --retry-delay 2 "${auth_header[@]}" \
+                "https://api.github.com/repos/${repo}/releases/latest" 2>/dev/null \
+            | jq -r --arg pat "${pattern}" '.assets[] | select(.name | test($pat)) | .browser_download_url' \
+            | head -1) || true
+        if [ -n "$url" ] && [ "$url" != "null" ]; then
+            break
+        fi
+        url=""
+        echo "[plugins]   attempt $attempt: no asset matching '$pattern' from $repo API — retrying..." >&2
+        sleep 5
+    done
+    if [ -z "$url" ]; then
+        echo "[plugins]   ERROR: no asset matching '$pattern' in $repo after 3 attempts" >&2
         return 1
     fi
     local fname
     fname=$(basename "$url")
     echo "[plugins]   Downloading $fname..."
-    curl -fsSL -o "$TMP_DIR/$fname" "$url"
+    curl -fsSL --retry 3 --retry-delay 2 -o "$TMP_DIR/$fname" "$url"
     mkdir -p "$dest"
     case "$fname" in
         *.tar.gz|*.tgz) tar -xzf "$TMP_DIR/$fname" -C "$dest" ;;
@@ -170,12 +183,12 @@ WR_AUTH=()
 if [ -n "$GITHUB_TOKEN" ]; then
     WR_AUTH=(-H "Authorization: Bearer $GITHUB_TOKEN")
 fi
-WR_URL=$(curl -fsSL "${WR_AUTH[@]}" "https://api.github.com/repos/CS2Plugins/WeaponRestrict/releases/latest" \
+WR_URL=$(curl -fsSL --retry 3 --retry-delay 2 "${WR_AUTH[@]}" "https://api.github.com/repos/CS2Plugins/WeaponRestrict/releases/latest" \
     | jq -r '.assets[] | select(.name | test("WeaponRestrict\\.dll")) | .browser_download_url' \
     | head -1)
 if [ -n "$WR_URL" ] && [ "$WR_URL" != "null" ]; then
     echo "[plugins]   Downloading WeaponRestrict.dll..."
-    curl -fsSL -o "$WR_DIR/WeaponRestrict.dll" "$WR_URL"
+    curl -fsSL --retry 3 --retry-delay 2 -o "$WR_DIR/WeaponRestrict.dll" "$WR_URL"
 else
     echo "[plugins]   WARNING: could not find WeaponRestrict release" >&2
 fi
