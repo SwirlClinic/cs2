@@ -3,6 +3,24 @@ set -e
 
 echo "=== CS2 Dedicated Server ==="
 
+CSGO_DIR="$CS2_DIR/game/csgo"
+
+# ----- Gamemode preset (sets defaults; explicit .env values still win) -----
+PRESETS_DIR="/home/steam/presets"
+PRESET_DIR=""
+if [ -n "$CS2_PRESET" ]; then
+    PRESET_DIR="$PRESETS_DIR/$CS2_PRESET"
+    if [ -d "$PRESET_DIR" ]; then
+        echo "[preset] Using gamemode preset: $CS2_PRESET"
+        if [ -f "$PRESET_DIR/preset.env" ]; then
+            . "$PRESET_DIR/preset.env"
+        fi
+    else
+        echo "[preset] ERROR: unknown preset '$CS2_PRESET'. Available: $(ls "$PRESETS_DIR" 2>/dev/null | tr '\n' ' ')" >&2
+        exit 1
+    fi
+fi
+
 # ----- Install / Update CS2 -----
 VALIDATE_FLAG=""
 if [ "$STEAMAPPVALIDATE" = "1" ]; then
@@ -21,10 +39,14 @@ if [ -f "$MANIFEST" ]; then
 fi
 
 echo "Updating CS2 (app 730)..."
-steamcmd +force_install_dir "$CS2_DIR" \
+if steamcmd +force_install_dir "$CS2_DIR" \
     +login anonymous \
     +app_update 730 $VALIDATE_FLAG \
-    +quit
+    +quit; then
+    echo "CS2 update successful."
+else
+    echo "WARNING: CS2 update failed (exit $?). Starting with existing files..."
+fi
 
 # ----- Fix steamclient.so symlink -----
 STEAM_SDK64="$HOME/.steam/sdk64"
@@ -40,15 +62,13 @@ fi
 /home/steam/install-plugins.sh
 
 # ----- Ensure Metamod is in gameinfo.gi (CS2 updates overwrite this file) -----
-CSGO_DIR_MM="$CS2_DIR/game/csgo"
-GAMEINFO="$CSGO_DIR_MM/gameinfo.gi"
+GAMEINFO="$CSGO_DIR/gameinfo.gi"
 if [ -f "$GAMEINFO" ] && ! grep -q "csgo/addons/metamod" "$GAMEINFO" 2>/dev/null; then
     echo "[entrypoint] Patching gameinfo.gi for Metamod (was reset by CS2 update)..."
     sed -i '/Game_LowViolence/a\\t\t\tGame\tcsgo/addons/metamod' "$GAMEINFO"
 fi
 
 # ----- Write WeaponPaints config (only if it doesn't exist) -----
-CSGO_DIR="$CS2_DIR/game/csgo"
 WP_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/WeaponPaints"
 if [ -d "$CSGO_DIR/addons/counterstrikesharp" ]; then
     mkdir -p "$WP_CFG_DIR"
@@ -122,27 +142,43 @@ VPCFG
     else
         echo "VipPlugin config exists — skipping"
     fi
+fi
 
-    # ----- Write WeaponRestrict config (only if it doesn't exist) -----
-    WR_CFG_DIR="$CSGO_DIR/addons/counterstrikesharp/configs/plugins/WeaponRestrict"
-    mkdir -p "$WR_CFG_DIR"
-    if [ ! -f "$WR_CFG_DIR/WeaponRestrict.json" ]; then
-        cat > "$WR_CFG_DIR/WeaponRestrict.json" <<'WRCFG'
-{
-  "DefaultConfig": {
-    "WeaponQuotas": {},
-    "WeaponLimits": {
-      "weapon_awp": 24,
-      "weapon_deagle": 24
-    }
-  },
-  "MapConfigs": {}
-}
-WRCFG
-        echo "WeaponRestrict config written (first run)"
+# ----- Apply preset files (cfg overlay, plugin configs, one-time install hook) -----
+# preset.cfg is preset-owned and rewritten every boot; per-server tweaks belong
+# in custom_overrides.cfg, which execs after it and is never overwritten.
+ACTIVE_PRESET_FILE="$CSGO_DIR/.active-preset"
+mkdir -p "$CSGO_DIR/cfg"
+if [ -n "$CS2_PRESET" ]; then
+    PREV_PRESET=$(cat "$ACTIVE_PRESET_FILE" 2>/dev/null || true)
+    if [ -f "$PRESET_DIR/cfg/preset.cfg" ]; then
+        cp "$PRESET_DIR/cfg/preset.cfg" "$CSGO_DIR/cfg/preset.cfg"
     else
-        echo "WeaponRestrict config exists — skipping"
+        echo "// preset '$CS2_PRESET' ships no preset.cfg" > "$CSGO_DIR/cfg/preset.cfg"
     fi
+
+    if [ -d "$PRESET_DIR/configs" ] && [ -d "$CSGO_DIR/addons/counterstrikesharp/configs" ]; then
+        if [ "$PREV_PRESET" != "$CS2_PRESET" ]; then
+            echo "[preset] Preset changed ('${PREV_PRESET:-none}' -> '$CS2_PRESET') — overwriting preset-owned plugin configs"
+            cp -r "$PRESET_DIR/configs/." "$CSGO_DIR/addons/counterstrikesharp/configs/"
+        else
+            cp -rn "$PRESET_DIR/configs/." "$CSGO_DIR/addons/counterstrikesharp/configs/" 2>/dev/null || true
+        fi
+    fi
+
+    PRESET_OK=1
+    if [ -x "$PRESET_DIR/install.sh" ] && [ "$PREV_PRESET" != "$CS2_PRESET" ]; then
+        echo "[preset] Running install hook for '$CS2_PRESET'..."
+        if ! CSGO_DIR="$CSGO_DIR" "$PRESET_DIR/install.sh"; then
+            echo "[preset] WARNING: install hook failed — will retry next boot" >&2
+            PRESET_OK=0
+        fi
+    fi
+    if [ "$PRESET_OK" = "1" ]; then
+        echo "$CS2_PRESET" > "$ACTIVE_PRESET_FILE"
+    fi
+else
+    echo "// no preset selected (set CS2_PRESET in .env)" > "$CSGO_DIR/cfg/preset.cfg"
 fi
 
 # ----- Write server.cfg (only if it doesn't exist) -----
@@ -159,30 +195,21 @@ fi
 # ----- Write custom_overrides.cfg (only if it doesn't exist) -----
 if [ ! -f "$CSGO_DIR/cfg/custom_overrides.cfg" ]; then
     cat > "$CSGO_DIR/cfg/custom_overrides.cfg" <<'OVCFG'
-// Custom server overrides — loaded after gamemode defaults via gamemode_*_server.cfg
+// Per-server overrides — loaded last, after gamemode defaults and preset.cfg.
 // Edit via the web UI (Server > Config Editor) or directly.
-// Changes here persist across map changes.
-mp_roundtime 2
-mp_freezetime 5
-mp_buytime 15
-mp_warmuptime 30
-mp_autoteambalance 1
-sv_alltalk 0
+// Changes here persist across map changes and preset switches.
 OVCFG
     echo "custom_overrides.cfg written (first run)"
 else
     echo "custom_overrides.cfg exists — skipping"
 fi
 
-# ----- Write gamemode_*_server.cfg files (exec custom_overrides.cfg) -----
+# ----- Write gamemode_*_server.cfg files (generated: preset, then overrides) -----
 for gmcfg in "$CSGO_DIR"/cfg/gamemode_*.cfg; do
+    [ -f "$gmcfg" ] || continue
     base=$(basename "$gmcfg" .cfg)
     case "$base" in *_server|*_offline|*_short|*_tmm) continue ;; esac
-    target="$CSGO_DIR/cfg/${base}_server.cfg"
-    if [ ! -f "$target" ]; then
-        echo "exec custom_overrides.cfg" > "$target"
-        echo "Created $target"
-    fi
+    printf 'exec preset.cfg\nexec custom_overrides.cfg\n' > "$CSGO_DIR/cfg/${base}_server.cfg"
 done
 
 # ----- Run pre.sh hook if present -----
