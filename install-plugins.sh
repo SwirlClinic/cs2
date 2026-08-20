@@ -163,8 +163,9 @@ gh_download "NickFox007/MenuManagerCS2" "\\.zip" "$CSGO_DIR"
 
 # ---- 6. MultiAddonManager ----
 # steamrt3 is the runtime CS2 dedicated servers use (steamrt4 targets newer
-# host distros); upstream renamed assets from *-linux.tar.gz in v1.5.4.
-gh_download "Source2ZE/MultiAddonManager" "linux-steamrt3.*\\.tar\\.gz" "$CSGO_DIR"
+# host distros). Upstream has renamed these assets twice (*-linux.tar.gz ->
+# *-linux-steamrt3.tar.gz -> *-steamrt3.tar.gz), so match loosely.
+gh_download "Source2ZE/MultiAddonManager" "steamrt3.*\\.tar\\.gz" "$CSGO_DIR"
 
 # ---- 7. PlayerModelChanger ----
 install_css_plugin "samyycX/CS2-PlayerModelChanger" "^PlayerModelChanger\\.zip$" "PlayerModelChanger"
