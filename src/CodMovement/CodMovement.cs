@@ -25,7 +25,6 @@ public class CodMovement : BasePlugin, IPluginConfig<CodMovementConfig>
         public float SlideDirY;
         public float SlideStartSpeed;
         public PlayerButtons PrevButtons;
-        public float AppliedModifier = -1f;
     }
 
     private readonly State[] _state = new State[64];
@@ -47,10 +46,12 @@ public class CodMovement : BasePlugin, IPluginConfig<CodMovementConfig>
                 _state[player.Slot] = new State();
                 if (Config.AnnounceControls && !player.IsBot)
                 {
+                    var sprintHint = Config.SprintMode == "auto"
+                        ? $"You {ChatColors.Yellow}auto-sprint{ChatColors.Default} while moving"
+                        : $"Hold {ChatColors.Yellow}Shift{ChatColors.Default} to sprint";
                     player.PrintToChat(
-                        $" {ChatColors.Green}[CoD]{ChatColors.Default} Hold " +
-                        $"{ChatColors.Yellow}Shift{ChatColors.Default} to sprint, tap " +
-                        $"{ChatColors.Yellow}Duck{ChatColors.Default} while sprinting to slide.");
+                        $" {ChatColors.Green}[CoD]{ChatColors.Default} {sprintHint} — tap " +
+                        $"{ChatColors.Yellow}Duck{ChatColors.Default} at speed to slide.");
                 }
             }
             return HookResult.Continue;
@@ -118,7 +119,7 @@ public class CodMovement : BasePlugin, IPluginConfig<CodMovementConfig>
                     vel.X = st.SlideDirX * cur;
                     vel.Y = st.SlideDirY * cur;
                     // Velocity modifier is neutral during a slide (velocity is driven directly).
-                    ApplyModifier(pawn, st, 1.0f);
+                    ApplyModifier(pawn, 1.0f);
                     st.PrevButtons = buttons;
                     continue;
                 }
@@ -126,18 +127,17 @@ public class CodMovement : BasePlugin, IPluginConfig<CodMovementConfig>
 
             // ----- Sprint (when not sliding) -----
             var target = wantSprint ? Config.SprintSpeedMultiplier : Config.BaseSpeedMultiplier;
-            ApplyModifier(pawn, st, target);
+            ApplyModifier(pawn, target);
 
             st.PrevButtons = buttons;
         }
     }
 
-    private static void ApplyModifier(CCSPlayerPawn pawn, State st, float value)
+    // Re-applied every tick: the engine resets m_flVelocityModifier frame to
+    // frame, so a one-shot set silently decays back to 1.0.
+    private static void ApplyModifier(CCSPlayerPawn pawn, float value)
     {
-        if (MathF.Abs(st.AppliedModifier - value) < 0.001f)
-            return;
         pawn.VelocityModifier = value;
         Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_flVelocityModifier");
-        st.AppliedModifier = value;
     }
 }

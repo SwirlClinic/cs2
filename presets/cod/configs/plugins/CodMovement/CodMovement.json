@@ -1,12 +1,12 @@
 {
-  "SprintMode": "hold",
+  "SprintMode": "auto",
   "BaseSpeedMultiplier": 1.0,
-  "SprintSpeedMultiplier": 1.45,
+  "SprintSpeedMultiplier": 1.5,
   "EnableSlide": true,
   "SlideBoostMultiplier": 1.6,
   "SlideDurationSeconds": 0.85,
   "SlideCooldownSeconds": 1.4,
-  "MinSpeedToSlide": 210.0,
+  "MinSpeedToSlide": 240.0,
   "AnnounceControls": true,
   "ConfigVersion": 1
 }
