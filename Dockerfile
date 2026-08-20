@@ -1,3 +1,14 @@
+# ---- Build in-repo C# CounterStrikeSharp plugins (CodMovement, ...) ----
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS pluginbuild
+WORKDIR /src
+COPY src/ ./src/
+# Publish each plugin project into /out/<Name>/ so it drops straight into
+# plugins-builtin. ExcludeAssets=runtime in the csproj keeps the API dll out.
+RUN for proj in src/*/*.csproj; do \
+        name=$(basename "$(dirname "$proj")"); \
+        dotnet publish "$proj" -c Release -o "/out/$name"; \
+    done
+
 FROM debian:bookworm-slim
 
 ARG PUID=1000
@@ -38,6 +49,8 @@ COPY --chown=steam:steam entrypoint.sh /home/steam/entrypoint.sh
 COPY --chown=steam:steam install-plugins.sh /home/steam/install-plugins.sh
 COPY --chown=steam:steam wp-data/ /home/steam/wp-data-backup/
 COPY --chown=steam:steam plugins/ /home/steam/plugins-builtin/
+# Compiled in-repo plugins (built above) land alongside the committed ones.
+COPY --from=pluginbuild --chown=steam:steam /out/ /home/steam/plugins-builtin/
 COPY --chown=steam:steam presets/ /home/steam/presets/
 RUN chmod +x /home/steam/entrypoint.sh /home/steam/install-plugins.sh \
     && find /home/steam/presets -name install.sh -exec chmod +x {} +

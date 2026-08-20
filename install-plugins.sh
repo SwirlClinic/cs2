@@ -205,20 +205,16 @@ if [ -f "$WP_GAMEDATA" ]; then
     echo "[plugins]   Copied weaponpaints.json gamedata"
 fi
 
-# ---- 12. DbAdmins (built-in) ----
-DBADMINS_DIR="$PLUGINS_DIR/DbAdmins"
-if [ -d "/home/steam/plugins-builtin/DbAdmins" ]; then
-    echo "[plugins]   Installing DbAdmins..."
-    mkdir -p "$DBADMINS_DIR"
-    cp /home/steam/plugins-builtin/DbAdmins/* "$DBADMINS_DIR/"
-fi
-
-# ---- 13. VipPlugin (built-in) ----
-VIPPLUGIN_DIR="$PLUGINS_DIR/VipPlugin"
-if [ -d "/home/steam/plugins-builtin/VipPlugin" ]; then
-    echo "[plugins]   Installing VipPlugin..."
-    mkdir -p "$VIPPLUGIN_DIR"
-    cp -r /home/steam/plugins-builtin/VipPlugin/* "$VIPPLUGIN_DIR/"
+# ---- 12. Built-in plugins baked into the image (DbAdmins, VipPlugin,
+#         CodMovement, ...) — install every directory under plugins-builtin. ----
+if [ -d "/home/steam/plugins-builtin" ]; then
+    for builtin in /home/steam/plugins-builtin/*/; do
+        [ -d "$builtin" ] || continue
+        name=$(basename "$builtin")
+        echo "[plugins]   Installing built-in $name..."
+        mkdir -p "$PLUGINS_DIR/$name"
+        cp -r "$builtin". "$PLUGINS_DIR/$name/"
+    done
 fi
 
 # ---- Restore curated data files ----

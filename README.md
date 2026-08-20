@@ -41,6 +41,7 @@ Set `CS2_PRESET` in `.env` and restart (`docker compose up -d --force-recreate c
 | `deathmatch` | Deathmatch (optionally bot-filled) |
 | `wingman` | 2v2 wingman |
 | `retakes` | Retakes via [B3none/cs2-retakes](https://github.com/B3none/cs2-retakes) (auto-installed) |
+| `cod` | CoD-style arena: sprint + slide movement, optional custom weapon models (see below) |
 | `custom` | Template — copy `presets/custom/`, make your own |
 
 A preset owns the game mode, start map, cvars (`preset.cfg`), any plugin
@@ -52,6 +53,44 @@ the preset's env defaults.
 
 Switching presets overwrites preset-owned plugin configs (e.g. weapon
 restrictions) and runs the new preset's install hook once.
+
+## CoD-style gamemode (`cod` preset)
+
+The `cod` preset turns the server into a fast run-and-gun arena with
+Call-of-Duty movement:
+
+- **Sprint** — hold the walk key (Shift by default) to run ~45% faster. Set
+  `SprintMode` to `auto` to always sprint while moving forward instead.
+- **Slide** — while sprinting at speed, tap Duck to slide: you get a forward
+  momentum boost that decays over ~0.85s, then a short cooldown.
+
+Both are implemented by the in-repo **CodMovement** CounterStrikeSharp plugin
+(`src/CodMovement/`), compiled during the Docker build and baked into the
+image. Tune the feel in
+`data/cs2/game/csgo/addons/counterstrikesharp/configs/plugins/CodMovement/CodMovement.json`
+(sprint multiplier, slide boost/duration/cooldown, min slide speed).
+
+### Custom weapon models / animations
+
+CS2 (Source 2) delivers custom weapon content as a **Workshop addon** that
+clients download and mount — there's no dropping loose model files on the
+server like CS:GO. The stack already ships
+[MultiAddonManager](https://github.com/Source2ZE/MultiAddonManager), which
+downloads and mounts extra Workshop addons server-side and reloads the map to
+precache them. To use custom weapon models:
+
+1. Get a Workshop **addon** ID for the weapon models (either publish your own
+   with the [CS2 Workshop Tools](https://developer.valvesoftware.com/wiki/Counter-Strike_2_Workshop_Tools),
+   or subscribe to an existing weapon-model replacement addon).
+2. In `presets/cod/cfg/preset.cfg`, uncomment and set:
+   `mm_extra_addons "<workshop_id>"` (comma-separated for several).
+3. Restart the server — MAM downloads the addon and reloads to precache it.
+
+What's realistic to know up front: swapping **world/weapon models** this way
+works well; replacing **first-person viewmodels with custom animations** is
+only reliable when the content is authored as a proper CS2 Workshop addon
+(Workshop Tools), not forced from loose files. The pipeline here is wired and
+ready — you supply the addon.
 
 ## Fleet / multiple servers
 
@@ -107,7 +146,8 @@ command, or insert into the admins table). VIP perks: `!vip` in chat.
 entrypoint.sh        boot: update CS2, install plugins, apply preset, launch
 install-plugins.sh   Metamod/CSS/plugin installer (layout-normalizing)
 presets/<name>/      gamemode presets (env, cfg, plugin configs, install hook)
-plugins/             in-repo plugins baked into the image (DbAdmins, VipPlugin)
+src/<Name>/          C# CounterStrikeSharp plugin source, compiled in Docker build
+plugins/             prebuilt plugins baked into the image (DbAdmins, VipPlugin)
 web/                 Next.js skin picker + server manager (port 8080)
 wp-data/             curated WeaponPaints data files baked into the image
 data/                runtime state (gitignored): game files, MySQL, Caddy
