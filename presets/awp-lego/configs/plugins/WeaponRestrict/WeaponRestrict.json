@@ -1,0 +1,10 @@
+{
+  "DefaultConfig": {
+    "WeaponQuotas": {},
+    "WeaponLimits": {
+      "weapon_awp": 24,
+      "weapon_deagle": 24
+    }
+  },
+  "MapConfigs": {}
+}

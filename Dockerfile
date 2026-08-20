@@ -38,7 +38,9 @@ COPY --chown=steam:steam entrypoint.sh /home/steam/entrypoint.sh
 COPY --chown=steam:steam install-plugins.sh /home/steam/install-plugins.sh
 COPY --chown=steam:steam wp-data/ /home/steam/wp-data-backup/
 COPY --chown=steam:steam plugins/ /home/steam/plugins-builtin/
-RUN chmod +x /home/steam/entrypoint.sh /home/steam/install-plugins.sh
+COPY --chown=steam:steam presets/ /home/steam/presets/
+RUN chmod +x /home/steam/entrypoint.sh /home/steam/install-plugins.sh \
+    && find /home/steam/presets -name install.sh -exec chmod +x {} +
 
 USER steam
 WORKDIR /home/steam
@@ -57,6 +59,7 @@ ENV SRCDS_TOKEN="" \
     CS2_PW="" \
     CS2_LAN=0 \
     CS2_CHEATS=0 \
+    CS2_PRESET="" \
     CS2_GAMEALIAS="" \
     CS2_GAMETYPE=0 \
     CS2_GAMEMODE=1 \
