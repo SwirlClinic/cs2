@@ -65,8 +65,10 @@ Call-of-Duty movement:
   momentum boost that decays over ~0.85s, then a short cooldown.
 
 Both are implemented by the in-repo **CodMovement** CounterStrikeSharp plugin
-(`src/CodMovement/`), compiled during the Docker build and baked into the
-image. Tune the feel in
+(`src/CodMovement/`), compiled during the Docker build. It's an *optional*
+plugin scoped to this preset (via `presets/cod/plugins.list`) — the entrypoint
+enables it only while `CS2_PRESET=cod` and removes it otherwise, so switching
+to any other mode cleanly turns sprint/slide off. Tune the feel in
 `data/cs2/game/csgo/addons/counterstrikesharp/configs/plugins/CodMovement/CodMovement.json`
 (sprint multiplier, slide boost/duration/cooldown, min slide speed).
 

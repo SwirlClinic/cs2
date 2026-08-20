@@ -1,0 +1,4 @@
+# Optional (image-baked) plugins to enable for this preset, one name per line.
+# Names match directories under /home/steam/plugins-optional (compiled in the
+# Docker build). Presets without a plugins.list enable none of them.
+CodMovement

@@ -144,6 +144,32 @@ VPCFG
     fi
 fi
 
+# ----- Reconcile optional (image-baked) plugins against the active preset -----
+# Compiled plugins live in /home/steam/plugins-optional; a preset opts in via
+# its plugins.list. Runs every boot so switching presets enables/removes them
+# without a full plugin reinstall (e.g. CodMovement only in the 'cod' preset).
+OPTIONAL_SRC="/home/steam/plugins-optional"
+if [ -d "$OPTIONAL_SRC" ] && [ -d "$CSGO_DIR/addons/counterstrikesharp/plugins" ]; then
+    DESIRED_PLUGINS=""
+    if [ -n "$CS2_PRESET" ] && [ -f "$PRESET_DIR/plugins.list" ]; then
+        DESIRED_PLUGINS=$(grep -vE '^[[:space:]]*(#|$)' "$PRESET_DIR/plugins.list" || true)
+    fi
+    for opt in "$OPTIONAL_SRC"/*/; do
+        [ -d "$opt" ] || continue
+        oname=$(basename "$opt")
+        odest="$CSGO_DIR/addons/counterstrikesharp/plugins/$oname"
+        if printf '%s\n' "$DESIRED_PLUGINS" | grep -qxF "$oname"; then
+            echo "[preset] Enabling optional plugin: $oname"
+            rm -rf "$odest"
+            mkdir -p "$odest"
+            cp -r "$opt". "$odest/"
+        elif [ -d "$odest" ]; then
+            echo "[preset] Disabling optional plugin: $oname (not in preset)"
+            rm -rf "$odest"
+        fi
+    done
+fi
+
 # ----- Apply preset files (cfg overlay, plugin configs, one-time install hook) -----
 # preset.cfg is preset-owned and rewritten every boot; per-server tweaks belong
 # in custom_overrides.cfg, which execs after it and is never overwritten.

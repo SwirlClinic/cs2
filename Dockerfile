@@ -49,8 +49,10 @@ COPY --chown=steam:steam entrypoint.sh /home/steam/entrypoint.sh
 COPY --chown=steam:steam install-plugins.sh /home/steam/install-plugins.sh
 COPY --chown=steam:steam wp-data/ /home/steam/wp-data-backup/
 COPY --chown=steam:steam plugins/ /home/steam/plugins-builtin/
-# Compiled in-repo plugins (built above) land alongside the committed ones.
-COPY --from=pluginbuild --chown=steam:steam /out/ /home/steam/plugins-builtin/
+# Compiled in-repo plugins go to plugins-optional; the entrypoint enables them
+# per preset (a preset's plugins.list opts in), so e.g. CodMovement only runs
+# in the 'cod' gamemode, not on every server.
+COPY --from=pluginbuild --chown=steam:steam /out/ /home/steam/plugins-optional/
 COPY --chown=steam:steam presets/ /home/steam/presets/
 RUN chmod +x /home/steam/entrypoint.sh /home/steam/install-plugins.sh \
     && find /home/steam/presets -name install.sh -exec chmod +x {} +
