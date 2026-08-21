@@ -1,53 +1,94 @@
 {
-  "DefaultLoadout": "assault",
+  "DefaultPreset": "assault",
   "GiveArmor": false,
   "ApplyToBots": true,
   "AnnounceOnSpawn": true,
-  "Loadouts": {
+  "MaxGrenades": 2,
+  "Primaries": {
+    "ak": "weapon_ak47",
+    "m4": "weapon_m4a4",
+    "m4a1s": "weapon_m4a1_silencer",
+    "awp": "weapon_awp",
+    "scout": "weapon_ssg08",
+    "mp5": "weapon_mp5sd",
+    "mp7": "weapon_mp7",
+    "mp9": "weapon_mp9",
+    "mac10": "weapon_mac10",
+    "ump": "weapon_ump45",
+    "p90": "weapon_p90",
+    "bizon": "weapon_bizon",
+    "famas": "weapon_famas",
+    "galil": "weapon_galilar",
+    "aug": "weapon_aug",
+    "sg553": "weapon_sg556",
+    "xm1014": "weapon_xm1014",
+    "nova": "weapon_nova",
+    "mag7": "weapon_mag7",
+    "sawedoff": "weapon_sawedoff",
+    "negev": "weapon_negev",
+    "m249": "weapon_m249",
+    "scar20": "weapon_scar20",
+    "g3sg1": "weapon_g3sg1"
+  },
+  "Secondaries": {
+    "deagle": "weapon_deagle",
+    "glock": "weapon_glock",
+    "usps": "weapon_usp_silencer",
+    "p2000": "weapon_hkp2000",
+    "p250": "weapon_p250",
+    "fiveseven": "weapon_fiveseven",
+    "tec9": "weapon_tec9",
+    "cz75": "weapon_cz75a",
+    "dualies": "weapon_elite",
+    "revolver": "weapon_revolver"
+  },
+  "GrenadePool": {
+    "he": "weapon_hegrenade",
+    "flash": "weapon_flashbang",
+    "smoke": "weapon_smokegrenade",
+    "molotov": "weapon_molotov",
+    "decoy": "weapon_decoy"
+  },
+  "WeaponCustoms": {
+    "weapon_ak47": { "Model": "phase2/weapons/7ychu5/slot1/ba_ak_kokona/ba_ak_kokona.vmdl" },
+    "weapon_glock": { "Model": "phase2/weapons/7ychu5/slot2/ba_glock_kanna/ba_glock_kanna.vmdl" },
+    "weapon_xm1014": { "Model": "phase2/weapons/7ychu5/slot1/ba_xm1014_hoshino/ba_xm1014_hoshino.vmdl" },
+    "weapon_awp": { "Model": "phase2/weapons/7ychu5/slot1/ba_awp_otogi/ba_awp_otogi.vmdl" },
+    "weapon_deagle": { "Model": "phase2/weapons/7ychu5/slot2/ba_deagle_hinata/ba_deagle_hinata.vmdl" },
+    "weapon_aug": { "Model": "phase2/weapons/7ychu5/slot1/ba_aug_hanae/ba_aug_hanae.vmdl" },
+    "weapon_famas": { "Model": "phase2/weapons/7ychu5/slot1/ba_famas_asuna/ba_famas_asuna.vmdl" },
+    "weapon_g3sg1": { "Model": "phase2/weapons/7ychu5/slot1/ba_g3sg1_midori/ba_g3sg1_midori.vmdl" },
+    "weapon_sg556": { "Model": "phase2/weapons/7ychu5/slot1/ba_sg556_serika/ba_sg556_serika.vmdl" },
+    "weapon_ump45": { "Model": "phase2/weapons/7ychu5/slot1/ba_ump45_kurumi/ba_ump45_kurumi.vmdl" },
+    "weapon_m4a4": { "Model": "phase2/weapons/7ychu5/slot1/ba_m4a4_chihiro/ba_m4a4_chihiro.vmdl" },
+    "weapon_mp5sd": { "Model": "phase2/weapons/7ychu5/slot1/ba_mp5sd_yuuka/ba_mp5sd_yuuka.vmdl" },
+    "weapon_mp7": { "Model": "phase2/weapons/7ychu5/slot1/ba_mp7_fuuka/ba_mp7_fuuka.vmdl" }
+  },
+  "Presets": {
     "assault": {
-      "Weapons": ["weapon_m4a1", "weapon_deagle"],
-      "Grenades": ["weapon_flashbang", "weapon_smokegrenade"],
-      "Models": {
-        "weapon_deagle": "phase2/weapons/7ychu5/slot2/ba_deagle_hinata/ba_deagle_hinata.vmdl"
-      },
-      "Subclasses": {
-        "weapon_m4a1": "60"
-      }
+      "Primary": "weapon_m4a1_silencer",
+      "Secondary": "weapon_deagle",
+      "Grenades": ["weapon_flashbang", "weapon_smokegrenade"]
     },
     "rifleman": {
-      "Weapons": ["weapon_ak47", "weapon_glock"],
-      "Grenades": ["weapon_hegrenade", "weapon_flashbang"],
-      "Models": {
-        "weapon_ak47": "phase2/weapons/7ychu5/slot1/ba_ak_kokona/ba_ak_kokona.vmdl",
-        "weapon_glock": "phase2/weapons/7ychu5/slot2/ba_glock_kanna/ba_glock_kanna.vmdl"
-      },
-      "Subclasses": {}
+      "Primary": "weapon_ak47",
+      "Secondary": "weapon_glock",
+      "Grenades": ["weapon_hegrenade", "weapon_flashbang"]
     },
     "smg": {
-      "Weapons": ["weapon_mp7", "weapon_hkp2000"],
-      "Grenades": ["weapon_flashbang", "weapon_hegrenade"],
-      "Models": {},
-      "Subclasses": {
-        "weapon_mp7": "23",
-        "weapon_hkp2000": "61"
-      }
+      "Primary": "weapon_mp5sd",
+      "Secondary": "weapon_usp_silencer",
+      "Grenades": ["weapon_flashbang", "weapon_hegrenade"]
     },
     "shotgun": {
-      "Weapons": ["weapon_xm1014", "weapon_tec9"],
-      "Grenades": ["weapon_hegrenade"],
-      "Models": {
-        "weapon_xm1014": "phase2/weapons/7ychu5/slot1/ba_xm1014_hoshino/ba_xm1014_hoshino.vmdl"
-      },
-      "Subclasses": {}
+      "Primary": "weapon_xm1014",
+      "Secondary": "weapon_tec9",
+      "Grenades": ["weapon_hegrenade"]
     },
     "sniper": {
-      "Weapons": ["weapon_awp", "weapon_deagle"],
-      "Grenades": ["weapon_smokegrenade"],
-      "Models": {
-        "weapon_awp": "phase2/weapons/7ychu5/slot1/ba_awp_otogi/ba_awp_otogi.vmdl",
-        "weapon_deagle": "phase2/weapons/7ychu5/slot2/ba_deagle_hinata/ba_deagle_hinata.vmdl"
-      },
-      "Subclasses": {}
+      "Primary": "weapon_awp",
+      "Secondary": "weapon_deagle",
+      "Grenades": ["weapon_smokegrenade"]
     }
   },
   "ConfigVersion": 1
