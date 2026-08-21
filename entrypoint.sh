@@ -177,9 +177,13 @@ ACTIVE_PRESET_FILE="$CSGO_DIR/.active-preset"
 mkdir -p "$CSGO_DIR/cfg"
 if [ -n "$CS2_PRESET" ]; then
     PREV_PRESET=$(cat "$ACTIVE_PRESET_FILE" 2>/dev/null || true)
-    if [ -f "$PRESET_DIR/cfg/preset.cfg" ]; then
-        cp "$PRESET_DIR/cfg/preset.cfg" "$CSGO_DIR/cfg/preset.cfg"
-    else
+    # Copy the preset's whole cfg tree (preset.cfg plus extras like
+    # cfg/multiaddonmanager/multiaddonmanager.cfg), then ensure preset.cfg
+    # exists since the generated gamemode_*_server.cfg files exec it.
+    if [ -d "$PRESET_DIR/cfg" ]; then
+        cp -r "$PRESET_DIR/cfg/." "$CSGO_DIR/cfg/"
+    fi
+    if [ ! -f "$CSGO_DIR/cfg/preset.cfg" ]; then
         echo "// preset '$CS2_PRESET' ships no preset.cfg" > "$CSGO_DIR/cfg/preset.cfg"
     fi
 
