@@ -49,7 +49,13 @@
     "molotov": "weapon_molotov",
     "decoy": "weapon_decoy"
   },
-  "WeaponCustoms": {},
+  "WeaponCustoms": {
+    "weapon_ak47": { "Model": "phase2/weapons/7ychu5/slot1/ba_ak_kokona/ba_ak_kokona.vmdl" },
+    "weapon_glock": { "Model": "phase2/weapons/7ychu5/slot2/ba_glock_kanna/ba_glock_kanna.vmdl" },
+    "weapon_awp": { "Model": "phase2/weapons/7ychu5/slot1/ba_awp_otogi/ba_awp_otogi.vmdl" },
+    "weapon_deagle": { "Model": "phase2/weapons/7ychu5/slot2/ba_deagle_hinata/ba_deagle_hinata.vmdl" },
+    "weapon_xm1014": { "Model": "phase2/weapons/7ychu5/slot1/ba_xm1014_hoshino/ba_xm1014_hoshino.vmdl" }
+  },
   "Presets": {
     "assault": {
       "Primary": "weapon_m4a1_silencer",
