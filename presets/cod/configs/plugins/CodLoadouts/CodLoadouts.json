@@ -49,46 +49,45 @@
     "molotov": "weapon_molotov",
     "decoy": "weapon_decoy"
   },
-  "WeaponCustoms": {
-    "weapon_ak47": { "Model": "phase2/weapons/7ychu5/slot1/ba_ak_kokona/ba_ak_kokona.vmdl" },
-    "weapon_glock": { "Model": "phase2/weapons/7ychu5/slot2/ba_glock_kanna/ba_glock_kanna.vmdl" },
-    "weapon_xm1014": { "Model": "phase2/weapons/7ychu5/slot1/ba_xm1014_hoshino/ba_xm1014_hoshino.vmdl" },
-    "weapon_awp": { "Model": "phase2/weapons/7ychu5/slot1/ba_awp_otogi/ba_awp_otogi.vmdl" },
-    "weapon_deagle": { "Model": "phase2/weapons/7ychu5/slot2/ba_deagle_hinata/ba_deagle_hinata.vmdl" },
-    "weapon_aug": { "Model": "phase2/weapons/7ychu5/slot1/ba_aug_hanae/ba_aug_hanae.vmdl" },
-    "weapon_famas": { "Model": "phase2/weapons/7ychu5/slot1/ba_famas_asuna/ba_famas_asuna.vmdl" },
-    "weapon_g3sg1": { "Model": "phase2/weapons/7ychu5/slot1/ba_g3sg1_midori/ba_g3sg1_midori.vmdl" },
-    "weapon_sg556": { "Model": "phase2/weapons/7ychu5/slot1/ba_sg556_serika/ba_sg556_serika.vmdl" },
-    "weapon_ump45": { "Model": "phase2/weapons/7ychu5/slot1/ba_ump45_kurumi/ba_ump45_kurumi.vmdl" },
-    "weapon_m4a4": { "Model": "phase2/weapons/7ychu5/slot1/ba_m4a4_chihiro/ba_m4a4_chihiro.vmdl" },
-    "weapon_mp5sd": { "Model": "phase2/weapons/7ychu5/slot1/ba_mp5sd_yuuka/ba_mp5sd_yuuka.vmdl" },
-    "weapon_mp7": { "Model": "phase2/weapons/7ychu5/slot1/ba_mp7_fuuka/ba_mp7_fuuka.vmdl" }
-  },
+  "WeaponCustoms": {},
   "Presets": {
     "assault": {
       "Primary": "weapon_m4a1_silencer",
       "Secondary": "weapon_deagle",
-      "Grenades": ["weapon_flashbang", "weapon_smokegrenade"]
+      "Grenades": [
+        "weapon_flashbang",
+        "weapon_smokegrenade"
+      ]
     },
     "rifleman": {
       "Primary": "weapon_ak47",
       "Secondary": "weapon_glock",
-      "Grenades": ["weapon_hegrenade", "weapon_flashbang"]
+      "Grenades": [
+        "weapon_hegrenade",
+        "weapon_flashbang"
+      ]
     },
     "smg": {
       "Primary": "weapon_mp5sd",
       "Secondary": "weapon_usp_silencer",
-      "Grenades": ["weapon_flashbang", "weapon_hegrenade"]
+      "Grenades": [
+        "weapon_flashbang",
+        "weapon_hegrenade"
+      ]
     },
     "shotgun": {
       "Primary": "weapon_xm1014",
       "Secondary": "weapon_tec9",
-      "Grenades": ["weapon_hegrenade"]
+      "Grenades": [
+        "weapon_hegrenade"
+      ]
     },
     "sniper": {
       "Primary": "weapon_awp",
       "Secondary": "weapon_deagle",
-      "Grenades": ["weapon_smokegrenade"]
+      "Grenades": [
+        "weapon_smokegrenade"
+      ]
     }
   },
   "ConfigVersion": 1
