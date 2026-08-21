@@ -6,23 +6,48 @@
   "Loadouts": {
     "assault": {
       "Weapons": ["weapon_m4a1", "weapon_deagle"],
-      "Grenades": ["weapon_flashbang", "weapon_smokegrenade"]
+      "Grenades": ["weapon_flashbang", "weapon_smokegrenade"],
+      "Models": {
+        "weapon_deagle": "phase2/weapons/7ychu5/slot2/ba_deagle_hinata/ba_deagle_hinata.vmdl"
+      },
+      "Subclasses": {
+        "weapon_m4a1": "60"
+      }
     },
     "rifleman": {
       "Weapons": ["weapon_ak47", "weapon_glock"],
-      "Grenades": ["weapon_hegrenade", "weapon_flashbang"]
+      "Grenades": ["weapon_hegrenade", "weapon_flashbang"],
+      "Models": {
+        "weapon_ak47": "phase2/weapons/7ychu5/slot1/ba_ak_kokona/ba_ak_kokona.vmdl",
+        "weapon_glock": "phase2/weapons/7ychu5/slot2/ba_glock_kanna/ba_glock_kanna.vmdl"
+      },
+      "Subclasses": {}
     },
     "smg": {
       "Weapons": ["weapon_mp7", "weapon_hkp2000"],
-      "Grenades": ["weapon_flashbang", "weapon_hegrenade"]
+      "Grenades": ["weapon_flashbang", "weapon_hegrenade"],
+      "Models": {},
+      "Subclasses": {
+        "weapon_mp7": "23",
+        "weapon_hkp2000": "61"
+      }
     },
     "shotgun": {
       "Weapons": ["weapon_xm1014", "weapon_tec9"],
-      "Grenades": ["weapon_hegrenade"]
+      "Grenades": ["weapon_hegrenade"],
+      "Models": {
+        "weapon_xm1014": "phase2/weapons/7ychu5/slot1/ba_xm1014_hoshino/ba_xm1014_hoshino.vmdl"
+      },
+      "Subclasses": {}
     },
     "sniper": {
       "Weapons": ["weapon_awp", "weapon_deagle"],
-      "Grenades": ["weapon_smokegrenade"]
+      "Grenades": ["weapon_smokegrenade"],
+      "Models": {
+        "weapon_awp": "phase2/weapons/7ychu5/slot1/ba_awp_otogi/ba_awp_otogi.vmdl",
+        "weapon_deagle": "phase2/weapons/7ychu5/slot2/ba_deagle_hinata/ba_deagle_hinata.vmdl"
+      },
+      "Subclasses": {}
     }
   },
   "ConfigVersion": 1

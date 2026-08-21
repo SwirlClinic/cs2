@@ -10,6 +10,18 @@ public class LoadoutSpec
 
     [JsonPropertyName("Grenades")]
     public List<string> Grenades { get; set; } = new();
+
+    // Per-class custom weapon models: weapon designer name -> .vmdl path from
+    // a mounted Workshop addon (see mm_extra_addons). Applied to view + world
+    // models, so each class carries its own custom-looking arsenal.
+    [JsonPropertyName("Models")]
+    public Dictionary<string, string> Models { get; set; } = new();
+
+    // Per-class subclass swaps (ChangeSubclass): weapon designer name ->
+    // subclass id/name. Shipped variant ids (60=M4A1-S, 61=USP-S, ...) or a
+    // custom subclass name defined by a mounted addon's weapon vdata.
+    [JsonPropertyName("Subclasses")]
+    public Dictionary<string, string> Subclasses { get; set; } = new();
 }
 
 public class CodLoadoutsConfig : BasePluginConfig

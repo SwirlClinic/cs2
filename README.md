@@ -64,10 +64,14 @@ Call-of-Duty movement:
 - **Slide** — while sprinting at speed, tap Duck to slide: you get a forward
   momentum boost that decays over ~0.85s, then a short cooldown.
 
-- **Loadouts** — pick a class in chat (`!class assault|rifleman|smg|shotgun|sniper`,
-  `!classes` to list) and every spawn grants that arsenal; buying is disabled so
-  classes define the game. Bots use the default class. Classes are defined in
-  `configs/plugins/CodLoadouts/CodLoadouts.json` in the preset.
+- **Loadouts with custom weapons** — pick a class in chat
+  (`!class assault|rifleman|smg|shotgun|sniper`, `!classes` to list) and every
+  spawn grants that arsenal; buying is disabled so classes define the game.
+  Each class can carry **its own custom weapon models** (per-slot `Models`,
+  view + world, from the mounted Workshop model pack) and subclass swaps
+  (per-slot `Subclasses`, e.g. M4A1→M4A1-S) — so a class's guns look and
+  animate like different weapons. Bots use the default class. All of it is
+  defined in `configs/plugins/CodLoadouts/CodLoadouts.json` in the preset.
 
 Movement is implemented by the in-repo **CodMovement** CounterStrikeSharp plugin
 (`src/CodMovement/`), compiled during the Docker build. It's an *optional*
