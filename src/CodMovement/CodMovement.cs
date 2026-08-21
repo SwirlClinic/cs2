@@ -126,7 +126,14 @@ public class CodMovement : BasePlugin, IPluginConfig<CodMovementConfig>
             }
 
             // ----- Sprint (when not sliding) -----
-            var target = wantSprint ? Config.SprintSpeedMultiplier : Config.BaseSpeedMultiplier;
+            float target;
+            if (!wantSprint)
+                target = Config.BaseSpeedMultiplier;
+            else if (Config.SprintMode == "auto")
+                target = Config.SprintSpeedMultiplier;
+            else
+                // hold mode: compensate for the walk slowdown that Shift also triggers
+                target = Config.SprintSpeedMultiplier * Config.HoldWalkCompensation;
             ApplyModifier(pawn, target);
 
             st.PrevButtons = buttons;

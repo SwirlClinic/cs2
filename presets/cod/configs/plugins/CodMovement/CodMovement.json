@@ -1,7 +1,8 @@
 {
-  "SprintMode": "auto",
+  "SprintMode": "hold",
   "BaseSpeedMultiplier": 1.0,
-  "SprintSpeedMultiplier": 1.5,
+  "SprintSpeedMultiplier": 1.6,
+  "HoldWalkCompensation": 1.92,
   "EnableSlide": true,
   "SlideBoostMultiplier": 1.6,
   "SlideDurationSeconds": 0.85,

@@ -17,6 +17,13 @@ public class CodMovementConfig : BasePluginConfig
     [JsonPropertyName("SprintSpeedMultiplier")]
     public float SprintSpeedMultiplier { get; set; } = 1.45f;
 
+    // "hold" mode only: Shift is CS2's walk key, so holding it also applies the
+    // engine's walk slowdown (~0.52x). This factor cancels that so a held Shift
+    // sprints instead of walks — effective modifier = Sprint x Compensation.
+    // ~1.0/0.52. Tune if the held speed doesn't match the auto-sprint speed.
+    [JsonPropertyName("HoldWalkCompensation")]
+    public float HoldWalkCompensation { get; set; } = 1.92f;
+
     // Slide: tap Duck while sprinting and moving fast on the ground.
     [JsonPropertyName("EnableSlide")]
     public bool EnableSlide { get; set; } = true;

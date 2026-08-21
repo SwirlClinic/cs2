@@ -183,13 +183,12 @@ if [ -n "$CS2_PRESET" ]; then
         echo "// preset '$CS2_PRESET' ships no preset.cfg" > "$CSGO_DIR/cfg/preset.cfg"
     fi
 
+    # Preset-owned plugin configs are authoritative from the repo: apply them
+    # every boot so shipped updates take effect (edit defaults in the preset,
+    # not on the server — server-side edits are overwritten on restart).
     if [ -d "$PRESET_DIR/configs" ] && [ -d "$CSGO_DIR/addons/counterstrikesharp/configs" ]; then
-        if [ "$PREV_PRESET" != "$CS2_PRESET" ]; then
-            echo "[preset] Preset changed ('${PREV_PRESET:-none}' -> '$CS2_PRESET') — overwriting preset-owned plugin configs"
-            cp -r "$PRESET_DIR/configs/." "$CSGO_DIR/addons/counterstrikesharp/configs/"
-        else
-            cp -rn "$PRESET_DIR/configs/." "$CSGO_DIR/addons/counterstrikesharp/configs/" 2>/dev/null || true
-        fi
+        echo "[preset] Applying preset-owned plugin configs"
+        cp -r "$PRESET_DIR/configs/." "$CSGO_DIR/addons/counterstrikesharp/configs/"
     fi
 
     PRESET_OK=1
