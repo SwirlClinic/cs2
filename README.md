@@ -64,7 +64,12 @@ Call-of-Duty movement:
 - **Slide** — while sprinting at speed, tap Duck to slide: you get a forward
   momentum boost that decays over ~0.85s, then a short cooldown.
 
-Both are implemented by the in-repo **CodMovement** CounterStrikeSharp plugin
+- **Loadouts** — pick a class in chat (`!class assault|rifleman|smg|shotgun|sniper`,
+  `!classes` to list) and every spawn grants that arsenal; buying is disabled so
+  classes define the game. Bots use the default class. Classes are defined in
+  `configs/plugins/CodLoadouts/CodLoadouts.json` in the preset.
+
+Movement is implemented by the in-repo **CodMovement** CounterStrikeSharp plugin
 (`src/CodMovement/`), compiled during the Docker build. It's an *optional*
 plugin scoped to this preset (via `presets/cod/plugins.list`) — the entrypoint
 enables it only while `CS2_PRESET=cod` and removes it otherwise, so switching

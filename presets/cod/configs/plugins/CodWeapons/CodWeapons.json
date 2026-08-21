@@ -2,10 +2,17 @@
   "WeaponSubclass": {
     "weapon_m4a1": "60",
     "weapon_hkp2000": "61",
-    "weapon_deagle": "64",
-    "weapon_mp7": "23"
+    "weapon_mp7": "23",
+    "weapon_knife": "507",
+    "weapon_knife_t": "507"
   },
-  "ModelOverride": {},
+  "ModelOverride": {
+    "weapon_ak47": "phase2/weapons/7ychu5/slot1/ba_ak_kokona/ba_ak_kokona.vmdl",
+    "weapon_glock": "phase2/weapons/7ychu5/slot2/ba_glock_kanna/ba_glock_kanna.vmdl",
+    "weapon_xm1014": "phase2/weapons/7ychu5/slot1/ba_xm1014_hoshino/ba_xm1014_hoshino.vmdl",
+    "weapon_awp": "phase2/weapons/7ychu5/slot1/ba_awp_otogi/ba_awp_otogi.vmdl",
+    "weapon_deagle": "phase2/weapons/7ychu5/slot2/ba_deagle_hinata/ba_deagle_hinata.vmdl"
+  },
   "AnnounceLoadout": true,
   "ConfigVersion": 1
 }

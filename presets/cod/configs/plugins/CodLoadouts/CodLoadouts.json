@@ -1,0 +1,29 @@
+{
+  "DefaultLoadout": "assault",
+  "GiveArmor": false,
+  "ApplyToBots": true,
+  "AnnounceOnSpawn": true,
+  "Loadouts": {
+    "assault": {
+      "Weapons": ["weapon_m4a1", "weapon_deagle"],
+      "Grenades": ["weapon_flashbang", "weapon_smokegrenade"]
+    },
+    "rifleman": {
+      "Weapons": ["weapon_ak47", "weapon_glock"],
+      "Grenades": ["weapon_hegrenade", "weapon_flashbang"]
+    },
+    "smg": {
+      "Weapons": ["weapon_mp7", "weapon_hkp2000"],
+      "Grenades": ["weapon_flashbang", "weapon_hegrenade"]
+    },
+    "shotgun": {
+      "Weapons": ["weapon_xm1014", "weapon_tec9"],
+      "Grenades": ["weapon_hegrenade"]
+    },
+    "sniper": {
+      "Weapons": ["weapon_awp", "weapon_deagle"],
+      "Grenades": ["weapon_smokegrenade"]
+    }
+  },
+  "ConfigVersion": 1
+}

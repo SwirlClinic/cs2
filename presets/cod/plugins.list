@@ -3,3 +3,4 @@
 # Docker build). Presets without a plugins.list enable none of them.
 CodMovement
 CodWeapons
+CodLoadouts
