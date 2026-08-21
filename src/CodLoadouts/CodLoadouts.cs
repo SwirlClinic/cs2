@@ -44,6 +44,18 @@ public class CodLoadouts : BasePlugin, IPluginConfig<CodLoadoutsConfig>
         _storePath = Path.Combine(cfgDir, "playerloadouts.json");
         LoadStore();
 
+        // Custom models must be precached at map load or SetModel shows the
+        // ERROR (checkered) model. Mounting the addon only makes the files
+        // available; this registers each one so it can actually be applied.
+        RegisterListener<Listeners.OnServerPrecacheResources>(manifest =>
+        {
+            foreach (var custom in Config.WeaponCustoms.Values)
+            {
+                if (!string.IsNullOrWhiteSpace(custom.Model))
+                    manifest.AddResource(custom.Model!);
+            }
+        });
+
         AddCommand("css_class", "Copy a preset into your loadout", OnClassCommand);
         AddCommand("css_classes", "List presets", (p, _) => { if (p is { IsValid: true }) PrintPresets(p); });
         AddCommand("css_primary", "Set your primary weapon", (p, info) => OnSlotCommand(p, info, "primary"));
