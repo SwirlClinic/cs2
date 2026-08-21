@@ -123,7 +123,7 @@ public class CodWeapons : BasePlugin, IPluginConfig<CodWeaponsConfig>
         }
     }
 
-    private static CBaseViewModel? GetViewModel(CCSPlayerController player)
+    private static CBaseModelEntity? GetViewModel(CCSPlayerController player)
     {
         var vmServicesHandle = player.PlayerPawn.Value?.ViewModelServices?.Handle;
         if (vmServicesHandle is not { } h)
@@ -132,6 +132,6 @@ public class CodWeapons : BasePlugin, IPluginConfig<CodWeaponsConfig>
         var vmServices = new CCSPlayer_ViewModelServices(h);
         var ptr = vmServices.Handle + Schema.GetSchemaOffset("CCSPlayer_ViewModelServices", "m_hViewModel");
         Span<nint> viewModels = MemoryMarshal.CreateSpan(ref ptr, 3);
-        return new CHandle<CBaseViewModel>(viewModels[0]).Value;
+        return new CHandle<CBaseModelEntity>(viewModels[0]).Value;
     }
 }
